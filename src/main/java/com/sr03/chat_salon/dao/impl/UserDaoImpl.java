@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Service
 public class UserDaoImpl implements UserDaoCustom {
-    @Lazy
+    // @Lazy
     @Autowired
     private UserDao userDao;
 
