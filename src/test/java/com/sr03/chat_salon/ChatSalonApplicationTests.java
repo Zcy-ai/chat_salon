@@ -1,6 +1,6 @@
 package com.sr03.chat_salon;
 
-import com.sr03.chat_salon.dao.UserDao;
+//import com.sr03.chat_salon.dao.UserDao;
 import com.sr03.chat_salon.dao.UserDaoCustom;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,8 @@ import java.util.List;
 class ChatSalonApplicationTests {
 	@Autowired
 	private UserDaoCustom userDaoCustom;
-	@Autowired
-	private UserDao userDao;
+//	@Autowired
+//	private UserDao userDao;
 	@Test
 	void contextLoads() {
 	}
@@ -24,19 +24,33 @@ class ChatSalonApplicationTests {
 
 	}
 
+//	@Test
+//	public void deleteUser() {
+//		userDao.deleteById(1);
+//	}
+//	@Test
+//	public void findAllUser() {
+//		List<User> userList = userDao.findAll();
+//		System.out.println(userList);
+//	}
+//	@Test
+//	public void createUser() {
+//		User user_1 = userDaoCustom.CreateUser("Chenyi", "ZHA", "zcy88827@163.com", 1, "male", "123456");
+//		User user_2 = userDaoCustom.CreateUser("Chenwei", "Mi", "lymickey@163.com", 1, "male", "123456");
+//	}
 	@Test
-	public void deleteUser() {
-		userDao.deleteById(1);
+	public void addUser() {
+		User user = new User("ZHA","Chenyi","zcy88827@163.com",1,"male", "1234");
+		userDaoCustom.addUser(user);
+		System.out.println(user);
+
+	}
+	@Test
+	public void findUserByLogin() {
+		System.out.println(userDaoCustom.findUserByLogin("zcy88827@163.com"));
 	}
 	@Test
 	public void findAllUser() {
-		List<User> userList = userDao.findAll();
-		System.out.println(userList);
+		System.out.println(userDaoCustom.findAllUser());
 	}
-	@Test
-	public void createUser() {
-		User user_1 = userDaoCustom.CreateUser("Chenyi", "ZHA", "zcy88827@163.com", 1, "male", "123456");
-		User user_2 = userDaoCustom.CreateUser("Chenwei", "Mi", "lymickey@163.com", 1, "male", "123456");
-	}
-
 }
