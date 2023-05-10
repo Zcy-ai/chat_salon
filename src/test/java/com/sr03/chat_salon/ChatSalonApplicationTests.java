@@ -1,56 +1,40 @@
 package com.sr03.chat_salon;
 
 //import com.sr03.chat_salon.dao.UserDao;
-import com.sr03.chat_salon.dao.UserDaoCustom;
+import com.sr03.chat_salon.dao.UserDao;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import com.sr03.chat_salon.model.User;
 
-import java.util.List;
-
 @SpringBootTest
 class ChatSalonApplicationTests {
 	@Autowired
-	private UserDaoCustom userDaoCustom;
-//	@Autowired
-//	private UserDao userDao;
+	private UserDao userDao;
 	@Test
 	void contextLoads() {
 	}
 
 	@Test
-	public void findAll() {
-
-	}
-
-//	@Test
-//	public void deleteUser() {
-//		userDao.deleteById(1);
-//	}
-//	@Test
-//	public void findAllUser() {
-//		List<User> userList = userDao.findAll();
-//		System.out.println(userList);
-//	}
-//	@Test
-//	public void createUser() {
-//		User user_1 = userDaoCustom.CreateUser("Chenyi", "ZHA", "zcy88827@163.com", 1, "male", "123456");
-//		User user_2 = userDaoCustom.CreateUser("Chenwei", "Mi", "lymickey@163.com", 1, "male", "123456");
-//	}
-	@Test
 	public void addUser() {
 		User user = new User("ZHA","Chenyi","zcy88827@163.com",1,"male", "1234");
-		userDaoCustom.addUser(user);
+		userDao.addUser(user);
 		System.out.println(user);
 
 	}
 	@Test
 	public void findUserByLogin() {
-		System.out.println(userDaoCustom.findUserByLogin("zcy88827@163.com"));
+		System.out.println(userDao.findUserByLogin("zcy88827@163.com"));
 	}
 	@Test
 	public void findAllUser() {
-		System.out.println(userDaoCustom.findAllUser());
+		System.out.println(userDao.findAllUser());
+	}
+	@Test
+	public void updateUser() {
+		User user = userDao.findUserByLogin("zcy88827@163.com");
+		user.setPassword("123456789");
+		userDao.updateUser(user);
+		System.out.println(userDao.findUserByLogin("zcy88827@163.com"));
 	}
 }

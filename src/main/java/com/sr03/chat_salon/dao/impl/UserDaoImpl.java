@@ -1,6 +1,6 @@
 package com.sr03.chat_salon.dao.impl;
 
-import com.sr03.chat_salon.dao.UserDaoCustom;
+import com.sr03.chat_salon.dao.UserDao;
 import com.sr03.chat_salon.model.User;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,34 +8,14 @@ import org.springframework.stereotype.Service;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class UserDaoImpl implements UserDaoCustom {
-    // @Lazy
-//    @Autowired
-//    private UserDao userDao;
-
+public class UserDaoImpl implements UserDao {
     @Autowired
     private SessionFactory sessionFactory;
 
-//    private Session getCurrentSession() {
-//        return sessionFactory.getCurrentSession();
-//    }
-//    @Override
-//    @Transactional
-//    public User CreateUser(String last_name, String first_name, String login, int admin, String gender, String pwd) {
-//        User user = new User(last_name, first_name, login, admin, gender, pwd);
-//        userDao.save(user);
-//        return user;
-//    }
-//
-//    @Override
-//    @Transactional
-//    public void DeleteUserById(int id) {
-//        userDao.deleteById(id);
-//    }
     @Override
     @Transactional
     public void addUser(User user) {
@@ -45,13 +25,36 @@ public class UserDaoImpl implements UserDaoCustom {
 
     @Override
     @Transactional
+    public void deleteUserById(int id) {
+        Session session = sessionFactory.getCurrentSession();
+        User user = session.get(User.class, id);
+        session.delete(user);
+    }
+
+    @Override
+    @Transactional
+    public void deleteUserByLogin(String login) {
+        String hql = "delete from User u where u.login = :login";
+        Query query = sessionFactory.getCurrentSession().createQuery(hql);
+        query.setParameter("login", login);
+        query.executeUpdate();
+    }
+
+    @Override
+    @Transactional
+    public void updateUser(User user) {
+        Session session = sessionFactory.getCurrentSession();
+        session.update(user);
+    }
+    @Override
+    @Transactional(readOnly = true)
     public List<User> findAllUser() {
         Session session = this.sessionFactory.getCurrentSession();
         Query<User> query = session.createQuery("from User");
         return query.list();
     }
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public User findUserByLogin(String login) {
         Session session = this.sessionFactory.getCurrentSession();
         Query<User> query = session.createQuery("from User where login = :user_login", User.class);

@@ -1,17 +1,15 @@
-//package com.sr03.chat_salon.service;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import com.sr03.chat_salon.dao.UserDaoCustom;
-//import org.springframework.stereotype.Service;
-//
-//@Service
-//public class UserService {
-//    @Autowired
-//    private UserDaoCustom userDao;
-//
-//    public void addUser(String last_name, String first_name, String login, int admin, String gender, String pwd) {
-//        userDao.CreateUser(last_name, first_name,login, admin, gender, pwd);
-//    }
-//
-////    public void findUserByLogin();
-//}
+package com.sr03.chat_salon.service;
+
+import com.sr03.chat_salon.model.User;
+
+import java.util.List;
+
+public interface UserService {
+    User registerUser(User user);
+    User login(String login, String password);
+    List<User> getAllUsers();
+    User findUserByLogin(String login);
+    void addUser(User user);
+    void deleteUserByLogin(String login);
+    void deleteUserById(int id);
+}
