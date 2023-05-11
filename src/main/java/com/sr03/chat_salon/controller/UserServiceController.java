@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Controller
@@ -49,7 +50,8 @@ public class UserServiceController {
     @PostMapping (value = "/login")
     public String LoginHandler(
             @RequestParam("login") String login,
-            @RequestParam("password") String pwd) {
+            @RequestParam("password") String pwd,
+            HttpServletRequest request) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
             //TODO 换成logback记录
@@ -58,6 +60,7 @@ public class UserServiceController {
         }
         // 验证密码，验证成功跳转
         if (userService.authenticate(login, pwd)){
+            request.getSession().setAttribute("user", user.getLogin());
             return "redirect:/getAllUsers";
         }
         return "index";
