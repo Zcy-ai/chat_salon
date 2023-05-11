@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>User List</h1>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Last Name</th>
+            <th>First Name</th>
+            <th>Login</th>
+            <th>Gender</th>
+            <th>Admin</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}" class="fw-bold"></td>
+            <td th:text="${user.lastName}" class="text-primary"></td>
+            <td th:text="${user.firstName}" class="text-primary"></td>
+            <td th:text="${user.login}" class="text-info"></td>
+            <td th:text="${user.gender}" class="text-secondary"></td>
+            <td th:text="${user.admin == 1 ? 'Yes' : 'No'}" class="text-muted"></td>
+            <td>
+                <a th:href="@{/users/edit/{id}(id=${user.id})}" class="btn btn-sm btn-primary me-2">Edit</a>
+                <form th:action="@{/deleteUser/{id}(id=${user.id})}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure to delete this user?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <a th:href="@{/users/create}" class="btn btn-success">Add User</a>
+</div>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
+</body>
+</html>

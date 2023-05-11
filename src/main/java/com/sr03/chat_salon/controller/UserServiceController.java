@@ -2,49 +2,52 @@ package com.sr03.chat_salon.controller;
 import com.sr03.chat_salon.model.User;
 import com.sr03.chat_salon.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * ClassName:SpringBootController
- * Package:com.bjpowernode.springboot.web
- * Description:<br/>
- */
-@RestController
+@Controller
 public class UserServiceController {
     @Autowired
     private UserService userService;
+    @RequestMapping("register")
+    public String ShowRegisterForm() {
+        return "register";
+    }
     @PostMapping (value = "/register")
-    public @ResponseBody String RegisterHandler(
+    public String RegisterHandler(
             @RequestParam(value="lastName") String last_name,
             @RequestParam(value="firstName") String first_name,
             @RequestParam(value="login") String login,
             @RequestParam(value="admin") int admin,
             @RequestParam(value="gender") String gender,
-            @RequestParam(value="password") String password) {
+            @RequestParam(value="password") String password,
+            Model model) {
         // 查找是否有重复的用户注册login findUserByLogin
         if (userService.findUserByLogin(login) != null) {
             //TODO 换成logback记录
+            model.addAttribute("error", "Login already registered!");
             System.out.println("Login already registered :(");
-            return null;
+            return "register";
         }
-        // TODO 给密码进行加密
+
         // 创建用户
         User user = new User(last_name, first_name, login, admin, gender, password);
         userService.addUser(user);
-        // TODO 若为管理员，跳转到管理员页面
-        if (user.getAdmin() == 1) {
-            return null;
-        } else if (user.getAdmin() == 0) { // TODO 若为普通用户，跳转到普通用户聊天页面
-            return null;
-        }
-        return null;
+        // TODO 若为管理员，请求转发到getAllUsersHandler
+//        if (user.getAdmin() == 1) {
+//            return "redirect:/getAllUsers";
+//        } else if (user.getAdmin() == 0) { // TODO 若为普通用户，跳转到普通用户聊天页面
+//            return null;
+//        }
+        // test
+        return "redirect:/getAllUsers";
     }
 
     @PostMapping (value = "/login")
-    public @ResponseBody String LoginHandler(
+    public String LoginHandler(
             @RequestParam("login") String login,
             @RequestParam("password") String pwd) {
         User user = userService.findUserByLogin(login);
@@ -53,27 +56,30 @@ public class UserServiceController {
             System.out.println("User Login Not Found :(");
             return null;
         }
-        // TODO 验证密码，验证成功跳转
-        return login+pwd;
+        // 验证密码，验证成功跳转
+        if (userService.authenticate(login, pwd)){
+            return "redirect:/getAllUsers";
+        }
+        return "index";
     }
 
-    @GetMapping (value = "/getAllUsers")
-    public @ResponseBody String getAllUsersHandler(Model model) {
+    @RequestMapping (value = "/getAllUsers")
+    public String getAllUsersHandler(Model model) {
         List<User> user_list = userService.getAllUsers();
-        model.addAttribute("listOfCustomers", user_list);
-        // TODO 返回admin主界面
-        return "Admin";
+        model.addAttribute("users", user_list);
+        return "admin";
     }
 
     @GetMapping (value = "/updateUser")
-    public @ResponseBody String updateUserHandler() {
+    public String updateUserHandler() {
+        // TODO 编辑用户实现
         return null;
     }
 
-    @GetMapping (value = "/deleteUser/{id}")
-    public @ResponseBody String deleteUserHandler(@PathVariable("id") int id) {
+    @PostMapping (value = "/deleteUser/{id}")
+    public String deleteUserHandler(@PathVariable("id") int id) {
         userService.deleteUserById(id);
-        return "admin";
+        return "redirect:getAllUsers";
     }
 
 }
