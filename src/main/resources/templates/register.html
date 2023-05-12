@@ -4,24 +4,25 @@
   <meta charset="UTF-8">
   <title>Registration</title>
   <!-- 引入Bootstrap样式 -->
-  <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.min.css" integrity="sha512-YDChav1pUAodyH1Ja7PIpEDUOoFROpZi5Lb7pY8+9+kU8UTr3J8SI8QO7SRuf4qdDKb5OI0xSt4Vk1wiYjBXgw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 <div class="container">
   <h1 class="text-center my-5">Registration</h1>
   <!-- 表单 -->
-  <form action="#" th:action="@{/register}" th:object="${user}" method="post">
-    <div class="form-group">
-      <label for="lastName">Last Name:</label>
-      <input type="text" class="form-control" id="lastName" name="lastName" field="*{lastName}" required>
-    </div>
+  <form action="#" th:action="@{/register}" th:object="${user}" method="post" id = "register">
     <div class="form-group">
       <label for="firstName">First Name:</label>
-      <input type="text" class="form-control" id="firstName" name="firstName" field="*{firstName}" required>
+      <input type="text" class="form-control" id="firstName" name="firstName" field="*{firstName}" placeholder="firstName" required>
     </div>
     <div class="form-group">
-      <label for="login">Login:</label>
-      <input type="text" class="form-control" id="login" name="login" field="*{login}" required>
+      <label for="lastName">Last Name:</label>
+      <input type="text" class="form-control" id="lastName" name="lastName" field="*{lastName}" placeholder="lastName">
+    </div>
+    <div class="form-group">
+      <label for="login">E-mail:</label>
+      <input type="text" class="form-control" id="login" name="login" field="*{login}" placeholder="lucas123@xx.com" required>
     </div>
     <div class="form-group">
       <label for="admin">Admin:</label>
@@ -41,12 +42,116 @@
       <label for="password">Password:</label>
       <input type="password" class="form-control" id="password" name="password" field="*{password}" required>
     </div>
+    <div class="form-group">
+      <label for="rePassword">Verify your password:</label>
+      <input type="password" class="form-control" id="rePassword" name="rePassword" required>
+    </div>
+    <div class="form-group">
+    <label class="control-label" id="captchaOperation"></label>
+      <input type="text" class="form-control" name="captcha" />
+    </div>
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 </div>
 <!-- 引入Bootstrap JS -->
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
-<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.0/js/bootstrap.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.min.js"></script>
+<script>
+  $(function () {
+    function randomNumber(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+    $('#captchaOperation').html([randomNumber(1, 100), '+', randomNumber(1, 200), '='].join(' '));
+    $("#register").bootstrapValidator({
+      message: 'This value is not valid',
+      feedbackIcons: {
+        valid: 'glyphicon glyphicon-ok',
+        invalid: 'glyphicon glyphicon-remove',
+        validating: 'glyphicon glyphicon-refresh'
+      },
+      excluded: [':disabled', ':hidden', ':not(:visible)'],
+      live: 'enabled',
+      fields: {
+        firstName: {
+          validators: {
+            notEmpty: {
+              message: 'The first name is required and cannot be empty'
+            },
+            regexp: {
+              regexp:/^[a-zA-Z]+$/,
+              message: 'The first name must be in English',
+            }
+          }
+        },
+        lastName: {
+          validators: {
+            notEmpty: {
+              message: 'The last name is required and cannot be empty'
+            },
+            stringCase: {
+              message: 'The last name must contain only uppercase characters',
+              case: 'upper'
+            },
+            regexp: {
+              regexp:/^[a-zA-Z]+$/,
+              message: 'The last name must be in English',
+            }
+          }
+        },
+        login: {
+          validators: {
+            notEmpty: {
+              message: 'The email address is required and cannot be empty'
+            },
+            emailAddress: {
+              message: 'The email address is in the wrong format'
+            }
+          }
+        },
+        password: {
+          validators: {
+            notEmpty: {
+              message: 'The password is required and cannot be empty'
+            },
+            stringLength: {
+              min: 6,
+              max: 30,
+              message: 'The password length must be between 6 and 30'
+            },
+            regexp: {
+              regexp : /^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])|(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9])|(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])|(?=.*[a-z])(?=.*[0-9])(?=.*[^A-Za-z0-9])).{6,30}$/,
+              message:  'The password should be 6 to 30 digits in length and should contain numbers, lowercase letters, uppercase letters, and symbols (at least three)'
+            }
+          }
+        },
+        rePassword: {
+          validators: {
+            notEmpty: {
+              message: 'The password is required and cannot be empty'
+            },
+            identical: {
+              field: 'password',
+              message: 'The password does not match twice'
+            }
+          }
+        },
+        captcha: {
+                 validators: {
+                     callback: {
+                         message: 'Wrong answer',
+                         callback: function(value, validator) {
+                             let items = $('#captchaOperation').html().split(' '), sum = parseInt(items[0]) + parseInt(items[2]);
+                             return value == sum;
+                         }
+                     }
+                 }
+             }
+      }
+    });
+
+  });
+</script>
 </body>
 </html>
