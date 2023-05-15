@@ -90,10 +90,13 @@ public class UserServiceController {
     }
 
     @PostMapping (value = "/deleteUser/{id}")
-    public String deleteUserHandler(@PathVariable("id") int id) {
+    @ResponseBody
+    public ResponseEntity deleteUserHandler(@PathVariable("id") int id) {
         userService.deleteUserById(id);
         logger.info("User with id "+id+" deleted");
-        return "redirect:getAllUsers";
+//        List<User> user_list = userService.getAllUsers();
+//        UserLoginResp resp = new UserLoginResp("", user_list);
+        return ResponseEntity.ok().build();
     }
 
 }

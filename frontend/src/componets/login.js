@@ -6,6 +6,7 @@ function Login() {
     const [login, setLogin] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    // const [userList, setUserList] = useState([]);
     const navigate = useNavigate();
 
     const handleLoginChange = (event) => {
@@ -26,7 +27,10 @@ function Login() {
         axios.post('http://localhost:8080/login', formData)
             .then((response) => {
                 if (response.status === 200) {
-                    navigate('/admin', response.data); // TODO 更改重定向路由
+                    console.log(response);
+                    console.log(response.data.userList);
+                    // setUserList(response.data.userLis
+                    navigate("/admin", { state: { userList: response.data.userList } });
                 } else {
                     setError('Authentication failed');
                 }
