@@ -88,15 +88,19 @@ public class UserServiceController {
         // TODO 编辑用户实现
         return null;
     }
-
-    @PostMapping (value = "/deleteUser/{id}")
+    @DeleteMapping (value = "/deleteUser/{user_id}")
     @ResponseBody
-    public ResponseEntity deleteUserHandler(@PathVariable("id") int id) {
+    public ResponseEntity deleteUserHandler(@PathVariable("user_id") int id){
         userService.deleteUserById(id);
         logger.info("User with id "+id+" deleted");
-//        List<User> user_list = userService.getAllUsers();
-//        UserLoginResp resp = new UserLoginResp("", user_list);
-        return ResponseEntity.ok().build();
+        List<User> user_list = userService.getAllUsers();
+        UserLoginResp resp = new UserLoginResp("", user_list);
+        return ResponseEntity.ok(resp);
+    }
+    @ExceptionHandler()
+    @ResponseBody
+    public String error(Exception e){
+        return "error:" + e.getMessage();
     }
 
 }

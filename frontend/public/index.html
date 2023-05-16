@@ -10,9 +10,9 @@
   <body>
     <div id="root"></div>
     <!-- 引入Login组件的JS文件 -->
-    <script src="../componets/login.js"></script>
-    <script>
+    <script type="text/babel" src="../componets/login.js">
       // 渲染Login组件到页面上
+      import Login from "../src/componets/login";
       ReactDOM.render(React.createElement(Login), document.getElementById('root'));
     </script>
   </body>

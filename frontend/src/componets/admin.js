@@ -1,26 +1,26 @@
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Admin() {
     
     // 下个页面获取state.
     let location = useLocation();
     let {userList} = location.state;
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     // 删除用户
-  const deleteUser = (id) => {
+  const deleteUser = (user_id) => {
     if (window.confirm('Are you sure to delete this user?')) {
         axios
-        .post(`http://localhost:8080/deleteUser/${id}`)
+        .delete(`http://localhost:8080/deleteUser/${user_id}`)
         .then((response) => {
             if (response.status === 200) {
-                console.log(response);
-                // userList = response.data.userList;
+                userList = response.data.userList;
                 // 刷新页面
-                window.location.reload();
-                // navigate("/admin", { state: { userList: response.data.userList } });
+                // window.location.reload();
+                navigate("/admin", { state: { userList: response.data.userList } });
+                console.log(response);
             }
         })
         .catch((error) => {

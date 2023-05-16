@@ -17,7 +17,8 @@ public class InterceptorConfiguration implements WebMvcConfigurer {
         String[] excludePathPatterns = {
                 "/",
                 "/login",
-                "/register"
+                "/register",
+                "/deleteUser/**"
         };
         registry.addInterceptor(new UserInterceptor()) //添加要注册的拦截器对象
                 .addPathPatterns(addPathPatterns) //添加需要拦截的路径

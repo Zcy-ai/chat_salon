@@ -12,7 +12,7 @@ public class UserInterceptor implements HandlerInterceptor {
         // 从session中获取结果
         String login = (String) request.getSession().getAttribute("user");
         if (login == null) {
-            response.sendRedirect(request.getContextPath());
+            //response.sendRedirect(request.getContextPath());
             return false;
         }
         return true;
