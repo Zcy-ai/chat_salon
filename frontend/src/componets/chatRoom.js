@@ -10,7 +10,7 @@ function ChatRoom() {
     let currentLastName = location.state.lastName;
     return (
         <div className="container-chat">
-            <div className="user-info">
+            <div className="user-information">
                 <div className="user-profile">
                     <img className="avatar" src={img} alt="Avatar" />
                     <div className="user-current">{currentFirstName} {currentLastName}</div>
