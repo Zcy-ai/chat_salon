@@ -6,7 +6,10 @@ function Admin() {
     
     // 下个页面获取state.
     let location = useLocation();
-    let {userList} = location.state;
+    // console.log(location);
+    let userList = location.state.userList;
+    let currentFirstName = location.state.firstName;
+    let currentLastName = location.state.lastName;
     const navigate = useNavigate();
 
     // 删除用户
@@ -32,6 +35,7 @@ function Admin() {
   return (
     <div className="container">
       <h1>User List</h1>
+        <div className="user-info">Hello {currentFirstName} {currentLastName}</div>
       <table className="table table-striped">
         <thead>
           <tr>

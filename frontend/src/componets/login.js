@@ -30,7 +30,8 @@ function Login() {
                     console.log(response);
                     console.log(response.data.userList);
                     // setUserList(response.data.userLis
-                    navigate("/admin", { state: { userList: response.data.userList } });
+                    // navigate("/admin", { state: { firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList } });
+                    navigate("/chatRoom", { state: { firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList } });
                 } else {
                     setError('Authentication failed');
                 }

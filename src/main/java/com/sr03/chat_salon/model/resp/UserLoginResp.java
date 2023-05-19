@@ -5,14 +5,16 @@ import com.sr03.chat_salon.model.User;
 import java.util.List;
 
 public class UserLoginResp {
-    String name;
+    String firstName;
+    String lastName;
     List<User> userList;
 
     public UserLoginResp() {
     }
 
-    public UserLoginResp(String name, List<User> userList) {
-        this.name = name;
+    public UserLoginResp(String firstName,String lastName, List<User> userList) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.userList = userList;
     }
 
@@ -24,11 +26,18 @@ public class UserLoginResp {
         this.userList = userList;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String name) {
+        this.firstName = name;
+    }
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String name) {
+        this.lastName = name;
     }
 }

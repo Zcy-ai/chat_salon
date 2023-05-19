@@ -70,7 +70,7 @@ public class UserServiceController {
             if (user.getAdmin() == 1) {
                 user_list = userService.getAllUsers();
             }
-            UserLoginResp resp = new UserLoginResp(user.getLastName(), user_list);
+            UserLoginResp resp = new UserLoginResp(user.getFirstName(),user.getLastName(), user_list);
             return ResponseEntity.ok(resp);
         }
         return ResponseEntity.notFound().build();
@@ -94,7 +94,7 @@ public class UserServiceController {
         userService.deleteUserById(id);
         logger.info("User with id "+id+" deleted");
         List<User> user_list = userService.getAllUsers();
-        UserLoginResp resp = new UserLoginResp("", user_list);
+        UserLoginResp resp = new UserLoginResp("","", user_list);
         return ResponseEntity.ok(resp);
     }
     @ExceptionHandler()

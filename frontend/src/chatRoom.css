@@ -1,0 +1,105 @@
+.container-chat {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.user-current {
+    flex: 1;
+    padding:10px;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.name {
+    font-size: 18px;
+}
+
+.logout {
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.online-users {
+    margin-top: 20px;
+}
+
+.online-users h2 {
+    margin-bottom: 10px;
+    font-size: 20px;
+    border-bottom: 1px solid #ccc;
+}
+
+.online-users ul {
+    list-style: none;
+    padding: 0;
+}
+
+.online-users li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.chat-room {
+    flex: 2;
+    margin-left: 20px;
+}
+
+.chat-room h2 {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 20px;
+}
+
+.message-area {
+    height: 300px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    overflow-y: scroll;
+}
+
+.input-area {
+    display: flex;
+    align-items: center;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.input-area button {
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    margin-left: 10px;
+}
+
+.input-area button:hover {
+    background-color: #0056b3;
+}
