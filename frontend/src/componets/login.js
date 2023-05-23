@@ -21,6 +21,7 @@ function Login() {
         event.preventDefault();
 
         const formData = new FormData();
+        // let socket = null;
         formData.append('login', login);
         formData.append('password', password);
 
@@ -29,9 +30,13 @@ function Login() {
                 if (response.status === 200) {
                     console.log(response);
                     console.log(response.data.userList);
-                    // setUserList(response.data.userLis
-                    // navigate("/admin", { state: { firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList } });
-                    navigate("/chatRoom", { state: { firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList } });
+                    // socket = new WebSocket("ws://localhost:8080/chat/"+login);
+                    // // 如果websocket创建失败
+                    // socket.onerror = function() {
+                    //     setError('Websocket failed');
+                    //     return;
+                    // };
+                    navigate("/chatRoom", { state: { firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList} });
                 } else {
                     setError('Authentication failed');
                 }

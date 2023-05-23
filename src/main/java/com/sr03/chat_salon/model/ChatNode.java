@@ -1,5 +1,6 @@
 package com.sr03.chat_salon.model;
 
+import javax.websocket.EncodeException;
 import javax.websocket.Session;
 import java.io.IOException;
 
@@ -17,9 +18,10 @@ public class ChatNode {
 //        this.loginTime = loginTime;
     }
 
-    public void sendMessage(String text) throws IOException {
+    public void sendMessage(ChatMessage message) throws IOException, EncodeException {
         // TODO 给session发送message
-        session.getBasicRemote().sendText(text);
+        System.out.println("准备发送消息到前端"+message);
+        session.getBasicRemote().sendObject(message);
     }
 
     public String getLogin() {

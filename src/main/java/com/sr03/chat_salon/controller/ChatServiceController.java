@@ -1,18 +1,22 @@
 package com.sr03.chat_salon.controller;
 
+import com.sr03.chat_salon.config.ServerEncoder;
+import com.sr03.chat_salon.model.ChatMessage;
 import com.sr03.chat_salon.model.ChatNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@ServerEndpoint(value = "/chat/{login}") //接受websocket请求路径
+@ServerEndpoint(value = "/chat/{login}", encoders = {ServerEncoder.class}) //接受websocket请求路径
 @CrossOrigin(origins = "*")
 @Component  //注册到spring容器中
 public class ChatServiceController {
@@ -35,18 +39,20 @@ public class ChatServiceController {
         this.login = login;
         ChatNode chat_node = new ChatNode(login, session, session.getBasicRemote().toString());
         webSocketMap.put(login, chat_node);
-        log.info("Utilisateur {} entre dans la salle du chat!", login);
+        // TODO 为什么一直显示进入chat
+        // System.out.println(webSocketMap);
+        // log.info("Utilisateur {} entre dans la salle du chat!", login);
     }
 
     //接受消息
     @OnMessage
-    public void onMessage(String message,Session session){
+    public void onMessage(String message,Session session) throws EncodeException, IOException {
         log.info("收到客户端{}消息：{}",session.getId(),message);
-        try{
-            this.broadcast(message);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        System.out.println(message);
+        ObjectMapper objectMapper = new ObjectMapper();
+        ChatMessage message_to_send = objectMapper.readValue(message, ChatMessage.class);
+//        session.getBasicRemote().sendObject(message_to_send);
+        broadcast(message_to_send);
     }
 
     //处理错误
@@ -64,7 +70,7 @@ public class ChatServiceController {
 
 
     //广播消息
-    public void broadcast(String message){
+    public void broadcast(ChatMessage message){
         ChatServiceController.webSocketMap.forEach((k,v)->{
             try{
 //                v.sendMessage("这是一条测试广播");
