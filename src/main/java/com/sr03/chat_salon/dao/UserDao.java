@@ -5,7 +5,6 @@ import com.sr03.chat_salon.model.User;
 import java.util.List;
 
 public interface UserDao {
-
     // 增
     void addUser(User user);
     // 删
