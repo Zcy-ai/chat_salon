@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="User")
@@ -25,6 +26,7 @@ public class User {
     private int id;
 
     @ManyToMany(targetEntity = ChatRoom.class, cascade = {CascadeType.ALL})
+    @JsonIgnore
     @JoinTable(
             name = "Contact",
             joinColumns = @JoinColumn(name = "user_id"),

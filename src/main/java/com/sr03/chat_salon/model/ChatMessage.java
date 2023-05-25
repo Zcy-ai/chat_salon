@@ -2,7 +2,8 @@ package com.sr03.chat_salon.model;
 
 
 public class ChatMessage {
-//    private MessageType type;
+    //    private MessageType type;
+    private Integer id;
     private String sender;
     private String content;
 //    public enum MessageType {
@@ -18,7 +19,9 @@ public class ChatMessage {
 //    public void setType(MessageType type) {
 //        this.type = type;
 //    }
+    public Integer getId() {return id;}
 
+    public void setId(Integer id) {this.id = id;}
     public String getContent() {
         return content;
     }
@@ -40,8 +43,9 @@ public class ChatMessage {
         super();
     }
 
-    public ChatMessage(String sender, String content) {
+    public ChatMessage(Integer id,String sender, String content) {
 //        this.type = type;
+        this.id = id;
         this.content = content;
         this.sender = sender;
     }

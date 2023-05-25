@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@ServerEndpoint(value = "/chat/{login}", encoders = {ServerEncoder.class}) //接受websocket请求路径
+@ServerEndpoint(value = "/chat/{login}/{chatID}", encoders = {ServerEncoder.class}) //接受websocket请求路径
 @CrossOrigin(origins = "*")
 @Component  //注册到spring容器中
 public class ChatServiceController {
