@@ -33,10 +33,11 @@ public class ChatServiceController {
 
     //处理连接建立
     @OnOpen
-    public void onOpen(Session session, @PathParam("login") String login){
+    public void onOpen(Session session, @PathParam("login") String login, @PathParam("chatID") String chat_id){
         // 创建一个ChatNode实例并保存到websocketMap中
         this.session = session;
         this.login = login;
+        System.out.println(login+chat_id);
         ChatNode chat_node = new ChatNode(login, session, session.getBasicRemote().toString());
         webSocketMap.put(login, chat_node);
         // TODO 为什么一直显示进入chat

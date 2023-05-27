@@ -15,4 +15,5 @@ public interface UserDao {
     // 查
     User findUserByLogin(String login);
     List<User> findAllUser();
+    List<User> findUserByChatRoom(int chatRoomID);
 }

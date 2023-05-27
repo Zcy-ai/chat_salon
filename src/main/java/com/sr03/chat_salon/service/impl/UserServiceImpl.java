@@ -48,6 +48,12 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findUserByLogin(login);
         return user;
     }
+
+    @Override
+    public List<User> findUserByChatRoom(int chatRoomID) {
+        return userDao.findUserByChatRoom(chatRoomID);
+    }
+
     @Override
     @Transactional
     public void deleteUserByLogin(String login) {

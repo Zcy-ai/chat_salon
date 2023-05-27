@@ -17,9 +17,32 @@ public class ChatRoomDaoImpl implements ChatRoomDao {
     private SessionFactory sessionFactory;
     @Override
     @Transactional
-    public void addChatRoom(ChatRoom chat_room) {
+    public boolean addChatRoom(ChatRoom chat_room) {
         Session session = this.sessionFactory.getCurrentSession();
         session.save(chat_room);
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteChatRoomByID(int chatRoomID) {
+        String hql = "delete from ChatRoom c where c.id = :chatRoomID";
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<ChatRoom> query = session.createQuery(hql);
+        query.setParameter("chatRoomID", chatRoomID);
+        query.executeUpdate();
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean deleteChatRoomByName(String chatRoomName) {
+        String hql = "delete from ChatRoom c where c.name = :chatRoomName";
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<ChatRoom> query = session.createQuery(hql);
+        query.setParameter("chatRoomName", chatRoomName);
+        query.executeUpdate();
+        return true;
     }
 
     @Override
@@ -32,10 +55,30 @@ public class ChatRoomDaoImpl implements ChatRoomDao {
 
     @Override
     @Transactional(readOnly = true)
-    public ChatRoom findChatRoomById(int id) {
+    public List<ChatRoom> findChatRoomByName(String chatRoomName) {
         Session session = this.sessionFactory.getCurrentSession();
-        Query<ChatRoom> query = session.createQuery("from ChatRoom where id = :chatroom_id", ChatRoom.class);
-        query.setParameter("chatroom_id", id);
+        Query<ChatRoom> query = session.createQuery("from ChatRoom where name = :chatRoomName");
+        query.setParameter("chatRoomName", chatRoomName);
+        return query.list();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ChatRoom findChatRoomByID(int chatRoomID) {
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<ChatRoom> query = session.createQuery("from ChatRoom where id = :chatRoomID", ChatRoom.class);
+        query.setParameter("chatRoomID", chatRoomID);
         return query.uniqueResult();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ChatRoom> findChatRoomByUser(int userID) {
+        Session session = this.sessionFactory.getCurrentSession();
+        String hql = "SELECT cr FROM ChatRoom cr JOIN cr.users u WHERE u.id = :userID";
+        Query<ChatRoom> query = session.createQuery(hql);
+        query.setParameter("userID", userID);
+        return query.getResultList();
+    }
+
 }

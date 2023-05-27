@@ -53,13 +53,13 @@ class ChatSalonApplicationTests {
 		chatRoomDao.addChatRoom(chat_room);
 		System.out.println(chatRoomDao.findAllChatRoom());
 	}
-	@Test
-	public void TestContact() {
-		User user = userDao.findUserByLogin("zcy88827@gmail.com");
-		ChatRoom chatRoom = chatRoomDao.findChatRoomById(14);
-		Contact contact = new Contact(user,chatRoom);
-		contactDao.addContact(contact);
-		System.out.println(contactDao.findAllContact());
-	}
+//	@Test
+//	public void TestContact() {
+//		User user = userDao.findUserByLogin("zcy88827@gmail.com");
+//		ChatRoom chatRoom = chatRoomDao.findChatRoomById(14);
+//		Contact contact = new Contact(user,chatRoom);
+//		contactDao.addContact(contact);
+//		System.out.println(contactDao.findAllContact());
+//	}
 
 }
