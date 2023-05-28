@@ -3,7 +3,6 @@ import com.sr03.chat_salon.model.User;
 import com.sr03.chat_salon.model.resp.UserLoginResp;
 import com.sr03.chat_salon.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.slf4j.Logger;

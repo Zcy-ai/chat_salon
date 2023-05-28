@@ -5,6 +5,7 @@ public class ChatMessage {
     //    private MessageType type;
     private Integer id;
     private String sender;
+    private Integer chatRoom;
     private String content;
 //    public enum MessageType {
 //        CHAT,
@@ -38,20 +39,30 @@ public class ChatMessage {
         this.sender = sender;
     }
 
+    public int getChatRoom() {
+        return chatRoom;
+    }
+
+    public void setChatRoom(int chatRoom) {
+        this.chatRoom = chatRoom;
+    }
+
     //default constructor
     public ChatMessage() {
         super();
     }
 
-    public ChatMessage(Integer id,String sender, String content) {
+    public ChatMessage(Integer id,String sender, Integer chatRoom, String content) {
 //        this.type = type;
         this.id = id;
         this.content = content;
         this.sender = sender;
+        this.chatRoom = chatRoom;
     }
     @Override
     public String toString() {
         return "ChatMessage{" +
+                "chatRoomID=" + chatRoom + '\'' +
                 "sender='" + sender + '\'' +
                 ", content='" + content + '\'' +
                 '}';

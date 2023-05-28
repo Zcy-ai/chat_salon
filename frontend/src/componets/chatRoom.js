@@ -6,8 +6,8 @@ import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListItemIc
 import { Send as SendIcon, Add as AddIcon , Delete as DeleteIcon} from '@mui/icons-material';
 
 class MessageToSend {
-    constructor(id, sender, content) {
-        this.id = id;
+    constructor(chatRoom, sender, content) {
+        this.chatRoom = chatRoom;
         this.sender = sender;
         this.content = content;
     }
@@ -24,6 +24,7 @@ class MessageToPrint {
 function ChatRoom() {
     let location = useLocation();
     let userList = location.state.userList;
+    let currentLogin = location.state.login;
     let currentFirstName = location.state.firstName;
     let currentLastName = location.state.lastName;
     const [currentChat, setCurrentChat] = useState(0);
@@ -45,10 +46,10 @@ function ChatRoom() {
         setCurrentChat(chatId);
     };
     const handleDeleteChat = (chatId) => {
-        if (chatId == 0){ //不删除 0 号聊天室
+        if (chatId === 0){ //不删除 0 号聊天室
             return
         }
-        if (chatId == currentChat){ //删除当前的，默认切换到 0 号聊天室
+        if (chatId === currentChat){ //删除当前的，默认切换到 0 号聊天室
             setCurrentChat(0);
         }
         // setChatRoom((prevChats) => { // TODO 删除的逻辑还是有问题
@@ -56,18 +57,18 @@ function ChatRoom() {
         //     return updatedChats;
         // });
     };
-    const socket = new WebSocket("ws://localhost:8080/chat/"+currentLastName+"_"+currentFirstName+"/"+chatRoom[currentChat].id);
+    const socket = new WebSocket("ws://localhost:8080/chat/"+currentLogin+"/"+chatRoom[currentChat].id);
     // 处理消息发送
     const sendMessage = () => {
         if (message.trim() !== '') {
             // console.log(chatRoom)
             //发送消息
             const newMessage = new MessageToSend(
-                chatRoom[currentChat].messages.length,
-                currentFirstName + ' ' + currentLastName,
+                // chatRoom[currentChat].messages.length,
+                14,
+                currentLogin,
                 message
             );
-
             socket.send(JSON.stringify(newMessage));
             setMessage('');
         }
@@ -75,6 +76,7 @@ function ChatRoom() {
     // 处理接收和显示消息
     useEffect(() => {
         socket.onopen = (event) => {
+            console.log(socket);
         };
         socket.onmessage = (event) => {
             const receivedMessage = JSON.parse(event.data);

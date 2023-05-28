@@ -26,12 +26,13 @@ public class ChatRoomDaoImpl implements ChatRoomDao {
     @Override
     @Transactional
     public boolean deleteChatRoomByID(int chatRoomID) {
-        String hql = "delete from ChatRoom c where c.id = :chatRoomID";
-        Session session = this.sessionFactory.getCurrentSession();
-        Query<ChatRoom> query = session.createQuery(hql);
-        query.setParameter("chatRoomID", chatRoomID);
-        query.executeUpdate();
-        return true;
+        Session session = sessionFactory.getCurrentSession();
+        ChatRoom chatRoom = session.get(ChatRoom.class, chatRoomID);
+        if (chatRoom != null) {
+            session.delete(chatRoom);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -39,7 +40,7 @@ public class ChatRoomDaoImpl implements ChatRoomDao {
     public boolean deleteChatRoomByName(String chatRoomName) {
         String hql = "delete from ChatRoom c where c.name = :chatRoomName";
         Session session = this.sessionFactory.getCurrentSession();
-        Query<ChatRoom> query = session.createQuery(hql);
+        Query query = session.createQuery(hql);
         query.setParameter("chatRoomName", chatRoomName);
         query.executeUpdate();
         return true;

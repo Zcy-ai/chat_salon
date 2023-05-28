@@ -51,7 +51,7 @@ function Login() {
                     //     setError('Websocket failed');
                     //     return;
                     // };
-                    navigate("/chatRoom", { state: { firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList} });
+                    navigate("/chatRoom", { state: { login: login, firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList} });
                 } else {
                     setError('Authentication failed');
                 }
