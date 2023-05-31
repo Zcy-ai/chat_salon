@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useRef,useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,12 +18,18 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 function Login() {
     const [login, setLogin] = useState('');
+    const [chatRoomList,setChatRoomList] = useState([]);
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [error, setError] = useState();
+    // let ref = useRef();
     // const [userList, setUserList] = useState([]);
     const navigate = useNavigate();
     const defaultTheme = createTheme();
 
+    // useEffect(() => {
+    //     ref.current = chatRoomList;
+    //     // console.log(chatRoomList);
+    // }, [chatRoomList]);
     const handleLoginChange = (event) => {
         setLogin(event.target.value);
     };
@@ -36,22 +42,35 @@ function Login() {
         event.preventDefault();
 
         const formData = new FormData();
-        // let socket = null;
         formData.append('login', login);
         formData.append('password', password);
 
         axios.post('http://localhost:8080/login', formData)
             .then((response) => {
                 if (response.status === 200) {
-                    console.log(response);
-                    console.log(response.data.userList);
-                    // socket = new WebSocket("ws://localhost:8080/chat/"+login);
-                    // // 如果websocket创建失败
-                    // socket.onerror = function() {
-                    //     setError('Websocket failed');
-                    //     return;
-                    // };
-                    navigate("/chatRoom", { state: { login: login, firstName:response.data.firstName, lastName:response.data.lastName, userList: response.data.userList} });
+                //     // useState闭包问题真的吐了
+                //     response.data.chatRoomList.forEach((chat) => {
+                //         const newChat = {
+                //             id: chat.id,
+                //             name: chat.name,
+                //             icon: <Avatar />,
+                //             messages: [],
+                //         };
+                //         const now = [...ref.current, newChat];
+                //         ref.current = now;
+                //         setChatRoomList(now);
+                //     });
+                //     console.log(ref.current);
+                //     console.log(chatRoomList);
+                    const state = {
+                        login: login,
+                        firstName:response.data.firstName,
+                        lastName:response.data.lastName,
+                        chatRoomList: response.data.chatRoomList,
+                        userList:response.data.userList,
+                    };
+                    console.log(state);
+                    navigate("/chatRoom", {state});
                 } else {
                     setError('Authentication failed');
                 }
@@ -73,30 +92,6 @@ function Login() {
             </Typography>
         );
     }
-    // return (
-    //     <div className="container">
-    //         <div className="row justify-content-center mt-5">
-    //             <div className="col-md-6">
-    //                 <h3 className="text-center mb-4">Login</h3>
-    //                 {error && <div className="alert alert-danger">{error}</div>}
-    //                 <form onSubmit={handleSubmit}>
-    //                     <div className="form-group">
-    //                         <label htmlFor="login">Login:</label>
-    //                         <input type="text" className="form-control" id="login" name="login" required onChange={handleLoginChange} />
-    //                     </div>
-    //                     <div className="form-group">
-    //                         <label htmlFor="password">Password:</label>
-    //                         <input type="password" className="form-control" id="password" name="password" required onChange={handlePasswordChange} />
-    //                     </div>
-    //                     <button type="submit" className="btn btn-primary btn-block">Login</button>
-    //                     <div className="text-center mt-3">
-    //                         <a href="/register" className="text-muted">Register?</a>
-    //                     </div>
-    //                 </form>
-    //             </div>
-    //         </div>
-    //     </div>
-    // );
     return (
         <ThemeProvider theme={defaultTheme}>
             <Container component="main" maxWidth="xs">

@@ -71,4 +71,11 @@ class ChatRoomServiceTest {
     public void deleteTest() {
         chatRoomDao.deleteChatRoomByID(19);
     }
+    @Test
+    public void test() {
+        List<ChatRoom> chatRoomList = chatRoomService.findChatRoomByUser(13);
+        for(int i=0;i<chatRoomList.size();i++) {
+            System.out.println(chatRoomList.get(i).getId()+chatRoomList.get(i).getName()+chatRoomList.get(i).getUsers());
+        }
+    }
 }

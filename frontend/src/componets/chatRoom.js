@@ -22,89 +22,43 @@ class MessageToPrint {
     }
 }
 function ChatRoom() {
-    let location = useLocation();
-    let userList = location.state.userList;
-    let currentLogin = location.state.login;
-    let currentFirstName = location.state.firstName;
-    let currentLastName = location.state.lastName;
-    const [currentChat, setCurrentChat] = useState(0);
+    const location = useLocation();
+    const state = location.state;
+    let currentLogin = state.login; // email of user
+    let currentFirstName = state.firstName; // firstName of user
+    let currentLastName = state.lastName; // lastName of user
+    const [currentChatRoomIndex, setCurrentChatRoomIndex] = useState(0); // current index of room in chatRoom
+    const [currentChatRoomId, setCurrentChatRoomId] = useState(0); // current id of chatRoom at backend
+    // const [currentMessageId, setCurrentMessageId] = useState(0);
     const [newChatName, setNewChatName] = useState('');
     const [isChatNameValid, setIsChatNameValid] = useState(true);
-    const [message, setMessage] = useState('');
-    const [chatRoom, setChatRoom] = useState([
-        {
-            id: 0,
-            name: 'Chat Room 0',
-            icon: <Avatar />,
-            messages: [
-                {id: 0, sender: 'Chat Room 0', content: 'Welcome' },
-            ],
-            timestamp:new Date().toLocaleString(),
-        }
-    ]);
-    const handleChatClick = (chatId) => {
-        setCurrentChat(chatId);
+    const [message, setMessage] = useState(''); //发送消息的输入框
+    const [socket, setSocket] = useState(null); //websocket connecté pour l'instant
+    const [chatRoom, setChatRoom] = useState(state.chatRoomList); // list of chatRoom
+    const [messageList,setMessageList] = useState([]); //当前聊天室的所有消息集合
+
+    // 当用户点击切换聊天室时，我们更新currentChatRoomIndex和currentChatRoomId
+    const handleChatClick = (roomIndex, roomId) => {
+        setMessageList([]);
+        setCurrentChatRoomIndex(roomIndex);
+        setCurrentChatRoomId(roomId);
+        console.log(currentChatRoomId);
+        console.log(currentChatRoomIndex);
     };
-    const handleDeleteChat = (chatId) => {
-        if (chatId === 0){ //不删除 0 号聊天室
-            return
+    // const getChatID = (roomId) => {
+    //     return chatRoom[roomId].id;
+    // };
+    const handleDeleteChat = (roomId) => {
+        // TODO axios向后端发送删除chat的请求
+        // TODO 更新chatRoom、currentChatRoomIndex和currentChatRoomId
+        if (roomId === currentChatRoomIndex){ //删除当前的，默认切换到 0 号聊天室
+            setCurrentChatRoomIndex(0);
         }
-        if (chatId === currentChat){ //删除当前的，默认切换到 0 号聊天室
-            setCurrentChat(0);
-        }
-        // setChatRoom((prevChats) => { // TODO 删除的逻辑还是有问题
+        // setChatRoom((prevChats) => {
         //     const updatedChats = prevChats.filter((chat) => chat.id !== chatId);
         //     return updatedChats;
         // });
     };
-    const socket = new WebSocket("ws://localhost:8080/chat/"+currentLogin+"/"+chatRoom[currentChat].id);
-    // 处理消息发送
-    const sendMessage = () => {
-        if (message.trim() !== '') {
-            // console.log(chatRoom)
-            //发送消息
-            const newMessage = new MessageToSend(
-                // chatRoom[currentChat].messages.length,
-                14,
-                currentLogin,
-                message
-            );
-            socket.send(JSON.stringify(newMessage));
-            setMessage('');
-        }
-    };
-    // 处理接收和显示消息
-    useEffect(() => {
-        socket.onopen = (event) => {
-            console.log(socket);
-        };
-        socket.onmessage = (event) => {
-            const receivedMessage = JSON.parse(event.data);
-            const { sender, content } = receivedMessage;// TODO websocket接收ChatID，让消息只在一个群组里发送而不是广播
-            const currentDate = new Date().toLocaleString(); // 添加日期
-            const formattedMessage = `${sender}: ${content}`
-            const newMessage = new MessageToPrint(
-                chatRoom[currentChat].messages.length, //TODO 此处要修改，把currentChat改成ChatID
-                sender,
-                formattedMessage,
-                currentDate,
-            );
-            console.log("ID: ",newMessage.id)
-            setChatRoom((prevChats) => {
-                const updatedChats = [...prevChats];
-                updatedChats[currentChat].messages.push(newMessage);
-                return updatedChats;
-            });
-        };
-        socket.onclose = function (event) {
-            console.log("Socket closed");
-        };
-        socket.onerror = function (err) {
-            console.log('Socket encountered error: ', err.message, 'Closing socket');
-            // setWebSocketReady(false);
-            socket.close();
-        };
-    }, [socket]);
     const handleCreateChat = () => {
         if (newChatName.trim() === '') {
             setIsChatNameValid(false);
@@ -118,9 +72,64 @@ function ChatRoom() {
                 { id: 0, sender: newChatName, content: 'Welcome' },
             ],
         };
+        // TODO axios访问后端接口创建群聊
         setChatRoom((prevChats) => [...prevChats, newChat]);
         setNewChatName('');
     };
+    // 向后端发送消息
+    const sendMessage = () => {
+        if (message.trim() !== '') {
+            //发送消息
+            const newMessage = new MessageToSend(
+                currentChatRoomId,
+                currentLogin,
+                message
+            );
+            socket.send(JSON.stringify(newMessage));
+            setMessage(''); //发送出消息后清空消息输入框
+        }
+    };
+
+    // 监控currentChatRoomId和currentLogin,当两者发生变化，更新websocket连接
+    useEffect(() => {
+        // 创建新的WebSocket连接
+        const newSocket = new WebSocket(`ws://localhost:8080/chat/${currentLogin}/${currentChatRoomId}`);
+        console.log(chatRoom);
+        // 设置WebSocket事件处理程序
+        newSocket.onopen = (event) => {
+            console.log(newSocket);
+        };
+        newSocket.onmessage = (event) => {
+            const receivedMessage = JSON.parse(event.data);
+            const { sender, content } = receivedMessage;// TODO websocket接收ChatID，让消息只在一个群组里发送而不是广播
+            const currentDate = new Date().toLocaleString(); // 添加日期
+            const formattedMessage = `${sender}: ${content}`
+            const newMessage = new MessageToPrint(
+                messageList.length,// TODO index还是id
+                sender,
+                formattedMessage,
+                currentDate,
+            );
+            // setChatRoom((prevChats) => {
+            //     const updatedChats = [...prevChats];
+            //     updatedChats[currentChatRoomIndex].messages.push(newMessage); //TODO index还是id
+            //     return updatedChats;
+            // });
+            setMessageList(prevState => [...prevState, newMessage]);
+        };
+        newSocket.onclose = function (event) {
+            console.log("Socket closed");
+        };
+        newSocket.onerror = function (err) {
+            console.log('Socket encountered error: ', err.message, 'Closing socket');
+            // setWebSocketReady(false);
+            socket.close();
+        };
+        // 更新state中的socket
+        setSocket(newSocket);
+
+        // 用currentLogin和currentChat作为依赖项，任一变化都会重新运行effect
+    }, [currentChatRoomId,currentLogin]);
     return (
         <Container maxWidth="lg" sx={{ marginTop: 4, height: 'calc(100vh - 64px)' }}>
             <Grid container spacing={2} sx={{ height: '100%' }}>
@@ -139,15 +148,15 @@ function ChatRoom() {
                             </Grid>
                             <Grid item sx={{ flexGrow: 1 }}>
                                 <List component="nav" sx={{ overflow: 'auto' }}>
-                                    {chatRoom.map((chat) => (
+                                    {chatRoom?.map((chat, index) => (
                                         <ListItem
                                             key={chat.id}
                                             button
-                                            selected={chat.id === currentChat}
-                                            onClick={() => handleChatClick(chat.id)}
+                                            selected={chat.id === currentChatRoomId}
+                                            onClick={() => handleChatClick(index, chat.id)}
                                             sx={{ borderRadius: 1, marginBottom: 1 }}
                                         >
-                                            <ListItemIcon sx={{ minWidth: 32 }}>{chat.icon}</ListItemIcon>
+                                            <ListItemIcon sx={{ minWidth: 32 }}>{<Avatar />}</ListItemIcon>
                                             <ListItemText primary={chat.name} />
                                             <IconButton edge="end" onClick={() => handleDeleteChat(chat.id)}>
                                                 <DeleteIcon />
@@ -188,11 +197,11 @@ function ChatRoom() {
                         <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2 }}>
                             <Grid item>
                                 <Typography variant="h6" sx={{ padding: 2 }}>
-                                    {chatRoom[currentChat].name}
+                                    {chatRoom[currentChatRoomIndex].name}
                                 </Typography>
                             </Grid>
                             <Grid item sx={{ flexGrow: 1, overflowY: 'auto', padding: 2 }}>
-                                {chatRoom[currentChat].messages.map((message) => (
+                                {messageList?.map((message) => (
                                     <Box
                                         key={message.id}
                                         sx={{
@@ -249,47 +258,5 @@ function ChatRoom() {
             </Grid>
         </Container>
     );
-
-    // return (
-    //     <div className="container-chat">
-    //         <div className="user-information">
-    //             <div className="user-profile">
-    //                 <img className="avatar" src={img} alt="Avatar" />
-    //                 <div className="user-current">{currentFirstName} {currentLastName}</div>
-    //                 <button className="logout">Logout</button>
-    //             </div>
-    //             <div className="online-users">
-    //                 {/* 现在是全部用户而不是在线用户 */}
-    //                 <h2>Online Users</h2>
-    //                 {userList.map(user => (
-    //                     <div key={user.id}>
-    //                     <img className="avatar" src={img} alt="Avatar" />
-    //                     <p className="name">{user.firstName} {user.lastName}</p>
-    //                     </div>
-    //                 ))}
-    //             </div>
-    //         </div>
-    //         <div className="chat-room">
-    //             <h2>Chat Room</h2>
-    //             <div className="message-area">
-    //                 {chatMessages.map((chatMessage, index) => (
-    //                     <p key={index}>
-    //                         <span className="message-content">{chatMessage.message}</span>
-    //                         <span className="message-date">{chatMessage.date}</span>
-    //                     </p>
-    //                 ))}
-    //             </div>
-    //             <div className="input-area">
-    //                 <input
-    //                     type="text"
-    //                     placeholder="Type your message"
-    //                     value={message}
-    //                     onChange={(e) => setMessage(e.target.value)}
-    //                 />
-    //                 <button onClick={sendMessage}>Send</button>
-    //             </div>
-    //         </div>
-    //     </div>
-    // );
 };
 export default ChatRoom;

@@ -76,7 +76,8 @@ public class ChatRoomDaoImpl implements ChatRoomDao {
     @Transactional(readOnly = true)
     public List<ChatRoom> findChatRoomByUser(int userID) {
         Session session = this.sessionFactory.getCurrentSession();
-        String hql = "SELECT cr FROM ChatRoom cr JOIN cr.users u WHERE u.id = :userID";
+        String hql = "SELECT DISTINCT cr FROM ChatRoom cr JOIN FETCH cr.users JOIN cr.users u WHERE u.id = :userID";
+//        String hql = "SELECT cr FROM ChatRoom cr JOIN cr.users u WHERE u.id = :userID";
         Query<ChatRoom> query = session.createQuery(hql);
         query.setParameter("userID", userID);
         return query.getResultList();
