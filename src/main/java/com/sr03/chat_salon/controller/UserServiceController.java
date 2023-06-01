@@ -1,9 +1,10 @@
 package com.sr03.chat_salon.controller;
+import com.sr03.chat_salon.model.ChatRoom;
 import com.sr03.chat_salon.model.User;
 import com.sr03.chat_salon.model.resp.UserLoginResp;
+import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.slf4j.Logger;
@@ -18,6 +19,8 @@ import java.util.List;
 public class UserServiceController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private ChatRoomService chatRoomService;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceController.class);
     @RequestMapping("register")
     public String ShowRegisterForm() {
@@ -70,7 +73,10 @@ public class UserServiceController {
             if (user.getAdmin() == 1) {
                 user_list = userService.getAllUsers();
             }
-            UserLoginResp resp = new UserLoginResp(user.getFirstName(),user.getLastName(), user_list);
+            List<ChatRoom> chatRoomList = chatRoomService.findChatRoomByUser(user.getId());
+//            System.out.println(user.getChatRooms());
+//            System.out.println(chatRoomList);
+            UserLoginResp resp = new UserLoginResp(user.getFirstName(),user.getLastName(), user_list, chatRoomList);
             return ResponseEntity.ok(resp);
         }
         return ResponseEntity.notFound().build();
@@ -94,7 +100,7 @@ public class UserServiceController {
         userService.deleteUserById(id);
         logger.info("User with id "+id+" deleted");
         List<User> user_list = userService.getAllUsers();
-        UserLoginResp resp = new UserLoginResp("","", user_list);
+        UserLoginResp resp = new UserLoginResp("","", user_list, null);
         return ResponseEntity.ok(resp);
     }
     @ExceptionHandler()

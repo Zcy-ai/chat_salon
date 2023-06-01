@@ -1,11 +1,10 @@
 package com.sr03.chat_salon.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name="User")
@@ -25,6 +24,16 @@ public class User {
     @Id
     @GeneratedValue
     private int id;
+
+    @ManyToMany(targetEntity = ChatRoom.class, cascade = {CascadeType.ALL})
+    @JsonIgnore
+    @JoinTable(
+            name = "Contact",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "chatRoom_id")
+    )
+    private Set<ChatRoom> chatRooms = new HashSet<>();
+
     public User() {
     }
 
@@ -92,6 +101,20 @@ public class User {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    public Set<ChatRoom> getChatRooms() {
+        return chatRooms;
+    }
+
+    public void addChatRoom(ChatRoom chatRoom) {
+        chatRooms.add(chatRoom);
+        chatRoom.getUsers().add(this);
+    }
+
+    public void removeChatRoom(ChatRoom chatRoom) {
+        chatRooms.remove(chatRoom);
+        chatRoom.getUsers().remove(this);
     }
 
     @Override
