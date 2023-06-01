@@ -5,27 +5,29 @@ import com.sr03.chat_salon.model.ChatRoom;
 import java.util.List;
 
 public class ChatRoomResp {
-    List<ChatRoom> chatRoomList;
-
+    Integer chatRoomId;
+    String chatRoomName;
     public ChatRoomResp() {
     }
 
-    public ChatRoomResp(List<ChatRoom> chatRoomList) {
-        this.chatRoomList = chatRoomList;
+    public ChatRoomResp(Integer chatRoomId, String chatRoomName) {
+        this.chatRoomId = chatRoomId;
+        this.chatRoomName = chatRoomName;
     }
 
-    public List<ChatRoom> getChatRoomList() {
-        return chatRoomList;
+    public Integer getChatRoomId() {
+        return chatRoomId;
     }
 
-    public void setChatRoomList(List<ChatRoom> chatRoomList) {
-        this.chatRoomList = chatRoomList;
+    public void setChatRoomId(Integer chatRoomId) {
+        this.chatRoomId = chatRoomId;
     }
 
-    @Override
-    public String toString() {
-        return "ChatRoomResp{" +
-                "chatRoomList=" + chatRoomList +
-                '}';
+    public String getChatRoomName() {
+        return chatRoomName;
+    }
+
+    public void setChatRoomName(String chatRoomName) {
+        this.chatRoomName = chatRoomName;
     }
 }

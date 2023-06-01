@@ -26,13 +26,12 @@ public class ChatRoomDaoImpl implements ChatRoomDao {
     @Override
     @Transactional
     public boolean deleteChatRoomByID(int chatRoomID) {
-        Session session = sessionFactory.getCurrentSession();
-        ChatRoom chatRoom = session.get(ChatRoom.class, chatRoomID);
-        if (chatRoom != null) {
-            session.delete(chatRoom);
-            return true;
-        }
-        return false;
+        String hql = "delete from ChatRoom c where c.id = :chatRoomID";
+        Session session = this.sessionFactory.getCurrentSession();
+        Query query = session.createQuery(hql);
+        query.setParameter("chatRoomID", chatRoomID);
+        query.executeUpdate();
+        return true;
     }
 
     @Override

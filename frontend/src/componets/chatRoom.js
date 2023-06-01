@@ -1,4 +1,5 @@
 import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 import '../chatRoom.css';
 import {useEffect, useState} from "react";
 
@@ -45,35 +46,49 @@ function ChatRoom() {
         console.log(currentChatRoomId);
         console.log(currentChatRoomIndex);
     };
-    // const getChatID = (roomId) => {
-    //     return chatRoom[roomId].id;
-    // };
     const handleDeleteChat = (roomId) => {
-        // TODO axios向后端发送删除chat的请求
+        // axios向后端发送删除chat的请求
         // TODO 更新chatRoom、currentChatRoomIndex和currentChatRoomId
-        if (roomId === currentChatRoomIndex){ //删除当前的，默认切换到 0 号聊天室
-            setCurrentChatRoomIndex(0);
-        }
-        // setChatRoom((prevChats) => {
-        //     const updatedChats = prevChats.filter((chat) => chat.id !== chatId);
-        //     return updatedChats;
-        // });
+        // if (roomId === currentChatRoomIndex){ //删除当前的，默认切换到 0 号聊天室
+        //     setCurrentChatRoomIndex(0);
+        // }
+        axios.post(`http://localhost:8080/delete_chatroom/${currentLogin}/${roomId}`)
+            .then((response) => {
+                if (response.status === 200) {
+                    // 后端删除成功后前端也进行删除
+                    setChatRoom((prevChats) => {
+                        const updatedChats = prevChats.filter((chat) => chat.id !== roomId);
+                        return updatedChats;
+                    });
+                    // TODO 更新currentChatRoomIndex和currentChatRoomId
+                    setCurrentChatRoomIndex(0);
+                } else {
+                    // TODO 请求失败的处理
+                }
+            }).catch((error) => {
+            console.log(error);
+        });
     };
     const handleCreateChat = () => {
         if (newChatName.trim() === '') {
             setIsChatNameValid(false);
             return;
         }
-        const newChat = {
-            id: chatRoom.length,
-            name: newChatName,
-            icon: <Avatar />,
-            messages: [
-                { id: 0, sender: newChatName, content: 'Welcome' },
-            ],
-        };
-        // TODO axios访问后端接口创建群聊
-        setChatRoom((prevChats) => [...prevChats, newChat]);
+        axios.post(`http://localhost:8080/create_chatroom/${currentLogin}/${newChatName}`)
+            .then((response) => {
+                if (response.status === 200) {
+                    console.log(response.data);
+                    const newChat = {
+                        id: response.data.chatRoomId,
+                        name: response.data.chatRoomName,
+                    };
+                    setChatRoom((prevChats) => [...prevChats, newChat]);
+                } else {
+                    // TODO 请求失败的处理
+                }
+            }).catch((error) => {
+                console.log(error);
+        });
         setNewChatName('');
     };
     // 向后端发送消息
@@ -110,11 +125,6 @@ function ChatRoom() {
                 formattedMessage,
                 currentDate,
             );
-            // setChatRoom((prevChats) => {
-            //     const updatedChats = [...prevChats];
-            //     updatedChats[currentChatRoomIndex].messages.push(newMessage); //TODO index还是id
-            //     return updatedChats;
-            // });
             setMessageList(prevState => [...prevState, newMessage]);
         };
         newSocket.onclose = function (event) {

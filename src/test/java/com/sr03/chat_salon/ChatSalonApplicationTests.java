@@ -27,7 +27,7 @@ class ChatSalonApplicationTests {
 
 	@Test
 	public void addUser() {
-		User user = new User("ZHA","Chenyi","zcy88827@163.com",1,"male", "1234");
+		User user = new User("ZHA","Chenyi","zcy88827@gmail.com",1,"male", "1234");
 		userDao.addUser(user);
 		System.out.println(user);
 

@@ -35,36 +35,41 @@ class ChatRoomServiceTest {
         ChatRoom chatRoom = new ChatRoom("SR03");
         chatRoomService.findAllChatRoom();
     }
+    @Test
+    public void deleteUser(){
+        userService.deleteUserById(32);
+    }
 
+    @Test
+    public void addUser() {
+        User user = new User("Messi","Leo","messi.leo@gmail.com",1,"male", "1234");
+        userService.addUser(user);
+    }
     @Test
     public void findAllChatRoom() {
         chatRoomService.findAllChatRoom();
     }
     @Test
     public void findChatRoomByUser() {
-        System.out.println(chatRoomService.findChatRoomByUser(1));
+        System.out.println(chatRoomService.findChatRoomByUser(32));
     }
 
     @Test
     public void createChatHandlerTest() {
-        User user = userService.findUserByLogin("yunrong.ruan@gmail.com");
-        ChatRoom chatRoom = chatRoomService.findChatRoomByID(14);
+        User user = userService.findUserByLogin("messi.leo@gmail.com");
+//        ChatRoom chatRoom = new ChatRoom("SR03");
+        ChatRoom chatRoom = chatRoomService.findChatRoomByID(41);
+//        chatRoomService.addChatRoom(chatRoom);
 //        chatRoom.addUser(user);
         Contact contact = new Contact(user, chatRoom);
         contactService.addContact(contact);
         List<ChatRoom> chatRoomList = chatRoomService.findChatRoomByUser(user.getId());
-        ChatRoomResp resp = new ChatRoomResp(chatRoomList);
-        System.out.println(resp);
     }
 
     @Test
     public void deleteChatRoomHandlerTest() {
         // TODO 显示运行成功，但没有在数据库中删除ChatRoom
-        User user = userService.findUserByLogin("zcy88827@gmail.com");
-        chatRoomService.deleteChatRoomByID(19);
-        List<ChatRoom> chatRoomList = chatRoomService.findChatRoomByUser(user.getId());
-        ChatRoomResp resp = new ChatRoomResp(chatRoomList);
-        System.out.println(resp);
+        chatRoomService.deleteChatRoomByID(34);
     }
 
     @Test
