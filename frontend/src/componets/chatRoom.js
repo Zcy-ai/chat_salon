@@ -1,6 +1,5 @@
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
-import '../chatRoom.css';
 import {useEffect, useState} from "react";
 
 import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListItemIcon, ListItemText, Paper, TextField, Typography, Box} from '@mui/material';
@@ -28,8 +27,8 @@ function ChatRoom() {
     let currentLogin = state.login; // email of user
     let currentFirstName = state.firstName; // firstName of user
     let currentLastName = state.lastName; // lastName of user
-    const [currentChatRoomIndex, setCurrentChatRoomIndex] = useState(0); // current index of room in chatRoom
-    const [currentChatRoomId, setCurrentChatRoomId] = useState(0); // current id of chatRoom at backend
+    const [currentChatRoomIndex, setCurrentChatRoomIndex] = useState(null); // current index of room in chatRoom
+    const [currentChatRoomId, setCurrentChatRoomId] = useState(null); // current id of chatRoom at backend
     // const [currentMessageId, setCurrentMessageId] = useState(0);
     const [newChatName, setNewChatName] = useState('');
     const [isChatNameValid, setIsChatNameValid] = useState(true);
@@ -40,6 +39,12 @@ function ChatRoom() {
 
     // 当用户点击切换聊天室时，我们更新currentChatRoomIndex和currentChatRoomId
     const handleChatClick = (roomIndex, roomId) => {
+        if (currentChatRoomIndex === roomIndex){
+            setCurrentChatRoomIndex(null);
+            setCurrentChatRoomId(null);
+            setMessageList([]);
+            return;
+        }
         setMessageList([]);
         setCurrentChatRoomIndex(roomIndex);
         setCurrentChatRoomId(roomId);
@@ -61,7 +66,9 @@ function ChatRoom() {
                         return updatedChats;
                     });
                     // TODO 更新currentChatRoomIndex和currentChatRoomId
-                    setCurrentChatRoomIndex(0);
+                    setCurrentChatRoomIndex(null);
+                    setCurrentChatRoomId(null);
+                    setMessageList([]);
                 } else {
                     // TODO 请求失败的处理
                 }
@@ -106,6 +113,7 @@ function ChatRoom() {
     };
 
     // 监控currentChatRoomId和currentLogin,当两者发生变化，更新websocket连接
+    let messageCounter = 0;
     useEffect(() => {
         // 创建新的WebSocket连接
         const newSocket = new WebSocket(`ws://localhost:8080/chat/${currentLogin}/${currentChatRoomId}`);
@@ -120,12 +128,16 @@ function ChatRoom() {
             const currentDate = new Date().toLocaleString(); // 添加日期
             const formattedMessage = `${sender}: ${content}`
             const newMessage = new MessageToPrint(
-                messageList.length,// TODO index还是id
+                messageCounter,// TODO index还是id
                 sender,
                 formattedMessage,
                 currentDate,
             );
-            setMessageList(prevState => [...prevState, newMessage]);
+            setMessageList(prevState => {
+                const updatedList = [...prevState, newMessage];
+                return updatedList;
+            });
+            messageCounter++; // 递增计数器变量
         };
         newSocket.onclose = function (event) {
             console.log("Socket closed");
@@ -144,9 +156,9 @@ function ChatRoom() {
         <Container maxWidth="lg" sx={{ marginTop: 4, height: 'calc(100vh - 64px)' }}>
             <Grid container spacing={2} sx={{ height: '100%' }}>
                 <Grid item xs={4} sx={{ height: '100%' }}>
-                    <Paper elevation={3} sx={{ height: '100%' }}>
-                        <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2 }}>
-                            <Grid item>
+                    <Paper elevation={3} sx={{ height: '100%'}}>
+                        <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2, position: 'relative'  }}>
+                            <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
                                 <Grid container alignItems="center" spacing={2}>
                                     <Grid item>
                                         <Avatar />
@@ -157,14 +169,18 @@ function ChatRoom() {
                                 </Grid>
                             </Grid>
                             <Grid item sx={{ flexGrow: 1 }}>
-                                <List component="nav" sx={{ overflow: 'auto' }}>
+                                <div style={{ height: '60px' }}></div>
+                                <List component="nav" sx={{ flexGrow: 1, maxHeight: 'calc(100% - 160px)', overflowY: 'auto' }}>
                                     {chatRoom?.map((chat, index) => (
                                         <ListItem
                                             key={chat.id}
                                             button
                                             selected={chat.id === currentChatRoomId}
                                             onClick={() => handleChatClick(index, chat.id)}
-                                            sx={{ borderRadius: 1, marginBottom: 1 }}
+                                            sx={{
+                                                borderRadius: 1,
+                                                marginBottom: 1
+                                            }}
                                         >
                                             <ListItemIcon sx={{ minWidth: 32 }}>{<Avatar />}</ListItemIcon>
                                             <ListItemText primary={chat.name} />
@@ -175,7 +191,7 @@ function ChatRoom() {
                                     ))}
                                 </List>
                             </Grid>
-                            <Grid item>
+                            <Grid item sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, margin: '10px' }}>
                                 <Button startIcon={<AddIcon />} fullWidth variant="contained" color="primary" onClick={handleCreateChat}>
                                     Create Chat
                                 </Button>
@@ -202,28 +218,32 @@ function ChatRoom() {
                         </Grid>
                     </Paper>
                 </Grid>
-                <Grid item xs={8} sx={{ height: '100%' }}>
+                {/*条件渲染*/}
+                {(currentChatRoomIndex!== null) && (
+                    <Grid item xs={8} sx={{ height: '100%', position: 'relative' }}>
                     <Paper elevation={3} sx={{ height: '100%' }}>
                         <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2 }}>
-                            <Grid item>
-                                <Typography variant="h6" sx={{ padding: 2 }}>
+                            <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
+                                <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0 }}>
+                                    {/*避免该用户的chatRoom为空*/}
                                     {chatRoom[currentChatRoomIndex].name}
                                 </Typography>
                             </Grid>
-                            <Grid item sx={{ flexGrow: 1, overflowY: 'auto', padding: 2 }}>
+                            <Grid item sx={{ flexGrow: 1, maxHeight: 'calc(100% - 80px)', overflowY: 'auto' }}>
+                                <div style={{ height: '60px' }}></div>
                                 {messageList?.map((message) => (
                                     <Box
                                         key={message.id}
                                         sx={{
                                             display: 'flex',
-                                            justifyContent: message.sender === `${currentFirstName} ${currentLastName}` ? 'flex-start' : 'flex-end',
+                                            justifyContent: message.sender === `${currentLogin}` ? 'flex-start' : 'flex-end',
                                             mb: 1,
                                         }}
                                     >
                                         <Box
                                             sx={{
-                                                backgroundColor: message.sender === `${currentFirstName} ${currentLastName}` ? '#e1f5fe' : '#f3e5f5',
-                                                color: message.sender === `${currentFirstName} ${currentLastName}` ? '#000000' : '#000000',
+                                                backgroundColor: message.sender === `${currentLogin}` ? '#e1f5fe' : '#f3e5f5',
+                                                color: message.sender === `${currentLogin}` ? '#000000' : '#000000',
                                                 padding: '8px 12px',
                                                 borderRadius: '8px',
                                                 maxWidth: '70%',
@@ -237,9 +257,11 @@ function ChatRoom() {
                                         </Box>
                                     </Box>
                                 ))}
+                                {/* 添加一个空的占位元素，确保输入框和chatRoom名称固定在底部 */}
+                                <div style={{ height: '40px' }}></div>
                             </Grid>
-                            <Grid item>
-                                <Grid container spacing={2} alignItems="center" sx={{ padding: 2 }}>
+                            <Grid item sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, margin: '10px' }}>
+                                <Grid container spacing={2} alignItems="center" sx={{ padding: 2, position: 'sticky', bottom: 0 }}>
                                     <Grid item xs>
                                         <TextField
                                             value={message}
@@ -265,6 +287,7 @@ function ChatRoom() {
                         </Grid>
                     </Paper>
                 </Grid>
+                )}
             </Grid>
         </Container>
     );
