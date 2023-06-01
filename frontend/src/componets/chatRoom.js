@@ -94,7 +94,7 @@ function ChatRoom() {
                     // TODO 请求失败的处理
                 }
             }).catch((error) => {
-                console.log(error);
+            console.log(error);
         });
         setNewChatName('');
     };
@@ -220,73 +220,71 @@ function ChatRoom() {
                 </Grid>
                 {/*条件渲染*/}
                 {(currentChatRoomIndex!== null) && (
-                    <Grid item xs={8} sx={{ height: '100%', position: 'relative' }}>
-                    <Paper elevation={3} sx={{ height: '100%' }}>
-                        <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2 }}>
-                            <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
-                                <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0 }}>
-                                    {/*避免该用户的chatRoom为空*/}
-                                    {chatRoom[currentChatRoomIndex].name}
-                                </Typography>
-                            </Grid>
-                            <Grid item sx={{ flexGrow: 1, maxHeight: 'calc(100% - 80px)', overflowY: 'auto' }}>
-                                <div style={{ height: '60px' }}></div>
-                                {messageList?.map((message) => (
-                                    <Box
-                                        key={message.id}
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: message.sender === `${currentLogin}` ? 'flex-start' : 'flex-end',
-                                            mb: 1,
-                                        }}
-                                    >
+                    <Grid item xs={8} sx={{ height: '100%' }}>
+                        <Paper elevation={3} sx={{ height: '100%' }}>
+                            <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2, position: 'relative' }}>
+                                <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
+                                    <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0 }}>
+                                        {/*避免该用户的chatRoom为空*/}
+                                        {chatRoom[currentChatRoomIndex].name}
+                                    </Typography>
+                                </Grid>
+                                <Grid item sx={{ flexGrow: 1, maxHeight: 'calc(100% - 80px)', overflowY: 'auto', paddingTop: '50px' }}>
+                                    {messageList?.map((message) => (
                                         <Box
+                                            key={message.id}
                                             sx={{
-                                                backgroundColor: message.sender === `${currentLogin}` ? '#e1f5fe' : '#f3e5f5',
-                                                color: message.sender === `${currentLogin}` ? '#000000' : '#000000',
-                                                padding: '8px 12px',
-                                                borderRadius: '8px',
-                                                maxWidth: '70%',
-                                                width: 'fit-content',
+                                                display: 'flex',
+                                                justifyContent: message.sender === `${currentLogin}` ? 'flex-start' : 'flex-end',
+                                                mb: 1,
                                             }}
                                         >
-                                            <Typography variant="caption" sx={{ color: 'gray', fontSize: '0.75rem', textAlign: 'right' }}>
-                                                {message.timestamp}
-                                            </Typography>
-                                            <Typography variant="body1">{message.content}</Typography>
+                                            <Box
+                                                sx={{
+                                                    backgroundColor: message.sender === `${currentLogin}` ? '#e1f5fe' : '#f3e5f5',
+                                                    color: message.sender === `${currentLogin}` ? '#000000' : '#000000',
+                                                    padding: '8px 12px',
+                                                    borderRadius: '8px',
+                                                    maxWidth: '70%',
+                                                    width: 'fit-content',
+                                                }}
+                                            >
+                                                <Typography variant="caption" sx={{ color: 'gray', fontSize: '0.75rem', textAlign: 'right' }}>
+                                                    {message.timestamp}
+                                                </Typography>
+                                                <Typography variant="body1">{message.content}</Typography>
+                                            </Box>
                                         </Box>
-                                    </Box>
-                                ))}
-                                {/* 添加一个空的占位元素，确保输入框和chatRoom名称固定在底部 */}
-                                <div style={{ height: '40px' }}></div>
-                            </Grid>
-                            <Grid item sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, margin: '10px' }}>
-                                <Grid container spacing={2} alignItems="center" sx={{ padding: 2, position: 'sticky', bottom: 0 }}>
-                                    <Grid item xs>
-                                        <TextField
-                                            value={message}
-                                            onChange={(e) => setMessage(e.target.value)}
-                                            label="Message"
-                                            fullWidth
-                                            variant="outlined"
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter' && !e.shiftKey) {
-                                                    e.preventDefault();
-                                                    sendMessage();
-                                                }
-                                            }}
-                                        />
-                                    </Grid>
-                                    <Grid item>
-                                        <IconButton onClick={sendMessage} disabled={!message.trim()}>
-                                            <SendIcon />
-                                        </IconButton>
+                                    ))}
+                                </Grid>
+                                <Grid item sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, margin: '10px' }}>
+                                    <Grid container spacing={2} alignItems="center" sx={{ padding: 2, position: 'sticky', bottom: 0 }}>
+                                        <Grid item xs>
+                                            <TextField
+                                                value={message}
+                                                onChange={(e) => setMessage(e.target.value)}
+                                                label="Message"
+                                                fullWidth
+                                                variant="outlined"
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        sendMessage();
+                                                    }
+                                                }}
+                                            />
+                                        </Grid>
+                                        <Grid item>
+                                            <IconButton onClick={sendMessage} disabled={!message.trim()}>
+                                                <SendIcon />
+                                            </IconButton>
+                                        </Grid>
                                     </Grid>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </Paper>
-                </Grid>
+
+                        </Paper>
+                    </Grid>
                 )}
             </Grid>
         </Container>
