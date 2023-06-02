@@ -5,8 +5,19 @@ public class ChatMessage {
     //    private MessageType type;
     private Integer id;
     private String sender;
+    private String firstName;
+    private String lastName;
     private Integer chatRoom;
     private String content;
+
+    public ChatMessage(Integer id, String sender, String firstName, String lastName, Integer chatRoom, String content) {
+        this.id = id;
+        this.sender = sender;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.chatRoom = chatRoom;
+        this.content = content;
+    }
 //    public enum MessageType {
 //        CHAT,
 //        IMAGE,
@@ -23,6 +34,21 @@ public class ChatMessage {
     public Integer getId() {return id;}
 
     public void setId(Integer id) {this.id = id;}
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
     public String getContent() {
         return content;
     }
@@ -52,13 +78,7 @@ public class ChatMessage {
         super();
     }
 
-    public ChatMessage(Integer id,String sender, Integer chatRoom, String content) {
-//        this.type = type;
-        this.id = id;
-        this.content = content;
-        this.sender = sender;
-        this.chatRoom = chatRoom;
-    }
+
     @Override
     public String toString() {
         return "ChatMessage{" +

@@ -6,17 +6,21 @@ import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListItemIc
 import { Send as SendIcon, Add as AddIcon , Delete as DeleteIcon} from '@mui/icons-material';
 
 class MessageToSend {
-    constructor(chatRoom, sender, content) {
+    constructor(chatRoom, sender, firstName, lastName, content) {
         this.chatRoom = chatRoom;
         this.sender = sender;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.content = content;
     }
 }
 
 class MessageToPrint {
-    constructor(id, sender, content, timestamp) {
+    constructor(id, sender, firstName, lastName, content, timestamp) {
         this.id = id;
         this.sender = sender;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.content = content;
         this.timestamp = timestamp;
     }
@@ -105,6 +109,8 @@ function ChatRoom() {
             const newMessage = new MessageToSend(
                 currentChatRoomId,
                 currentLogin,
+                currentFirstName,
+                currentLastName,
                 message
             );
             socket.send(JSON.stringify(newMessage));
@@ -124,12 +130,14 @@ function ChatRoom() {
         };
         newSocket.onmessage = (event) => {
             const receivedMessage = JSON.parse(event.data);
-            const { sender, content } = receivedMessage;// TODO websocket接收ChatID，让消息只在一个群组里发送而不是广播
+            const { sender, firstName, lastName, content } = receivedMessage;// TODO websocket接收ChatID，让消息只在一个群组里发送而不是广播
             const currentDate = new Date().toLocaleString(); // 添加日期
-            const formattedMessage = `${sender}: ${content}`
+            const formattedMessage = `${firstName} ${lastName}: ${content}`
             const newMessage = new MessageToPrint(
                 messageCounter,// TODO index还是id
                 sender,
+                firstName,
+                lastName,
                 formattedMessage,
                 currentDate,
             );
@@ -235,14 +243,14 @@ function ChatRoom() {
                                             key={message.id}
                                             sx={{
                                                 display: 'flex',
-                                                justifyContent: message.sender === `${currentLogin}` ? 'flex-start' : 'flex-end',
+                                                justifyContent: message.firstName+ ' '+ message.lastName === `${currentFirstName} ${currentLastName}` ? 'flex-end' : 'flex-start',
                                                 mb: 1,
                                             }}
                                         >
                                             <Box
                                                 sx={{
-                                                    backgroundColor: message.sender === `${currentLogin}` ? '#e1f5fe' : '#f3e5f5',
-                                                    color: message.sender === `${currentLogin}` ? '#000000' : '#000000',
+                                                    backgroundColor: message.firstName+ ' '+ message.lastName === `${currentFirstName} ${currentLastName}` ? '#f3e5f5' : '#e1f5fe',
+                                                    color: message.firstName+ ' '+ message.lastName === `${currentFirstName} ${currentLastName}` ? '#000000' : '#000000',
                                                     padding: '8px 12px',
                                                     borderRadius: '8px',
                                                     maxWidth: '70%',
