@@ -23,7 +23,6 @@ public class ChatNode {
     }
 
     public void sendMessage(ChatMessage message) throws IOException {
-        // TODO 给session发送message
         System.out.println("准备发送消息到前端"+message);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(message);
