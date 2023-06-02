@@ -42,6 +42,7 @@ public class ChatServiceController extends TextWebSocketHandler {
         String chatId = session.getUri().getPath().split("/")[3];
         this.login = login;
         ChatNode chatNode = new ChatNode(login, session, session.getRemoteAddress().toString());
+        log.info("收到Session", session);
         webSocketMap.put(login, chatNode);
 //        log.info("Utilisateur {} entre dans la salle du chat!", login);
     }

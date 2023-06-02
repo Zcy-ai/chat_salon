@@ -5,6 +5,15 @@ import {useEffect, useState} from "react";
 import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListItemIcon, ListItemText, Paper, TextField, Typography, Box} from '@mui/material';
 import { Send as SendIcon, Add as AddIcon , Delete as DeleteIcon} from '@mui/icons-material';
 
+class Invitation {
+    constructor(inviter, receiver, chatRoomID, chatRoomName, messageType) {
+        this.inviter = inviter;
+        this.receiver = receiver;
+        this.chatRoomID = chatRoomID;
+        this.chatRoomName = chatRoomName;
+        this.messageType = messageType;
+    }
+}
 class MessageToSend {
     constructor(chatRoom, sender, firstName, lastName, content) {
         this.chatRoom = chatRoom;
@@ -38,11 +47,60 @@ function ChatRoom() {
     const [isChatNameValid, setIsChatNameValid] = useState(true);
     const [message, setMessage] = useState(''); //发送消息的输入框
     const [socket, setSocket] = useState(null); //websocket connecté pour l'instant
+    const [socketServ, setSocketServ] = useState(null); //websocket to server
     const [chatRoom, setChatRoom] = useState(state.chatRoomList); // list of chatRoom
     const [messageList,setMessageList] = useState([]); //当前聊天室的所有消息集合
+    const [isAddingUser, setIsAddingUser] = useState(false);
+    const [newUserLogin, setNewUserLogin] = useState('');
+    const [myInvitation, setMyInvitation] = useState(null);
+
+    const handleAddUserClick = () => {
+        if (isAddingUser){
+            setIsAddingUser(false);
+            return;
+        }
+        setIsAddingUser(true);
+    };
+
+    const handleAddUserCancel = () => {
+        setIsAddingUser(false);
+        setNewUserLogin('');
+    };
+
+    const handleAddUserConfirm = () => {
+        const newInvitation = new Invitation(
+            currentLogin,
+            newUserLogin,
+            currentChatRoomId,
+            chatRoom[currentChatRoomIndex].name,
+            "INVITE"
+        )
+        socketServ.send(JSON.stringify(newInvitation));
+        setIsAddingUser(false);
+        setNewUserLogin('');
+    };
+    const handleResponseInvite = (value) => {
+        const newInvitation = new Invitation(
+            myInvitation.receiver,
+            myInvitation.inviter,
+            myInvitation.chatRoomID,
+            myInvitation.chatRoomName,
+            value
+        )
+        socketServ.send(JSON.stringify(newInvitation));
+        setMyInvitation(null);
+        if (value === "CONFIRM"){
+            const newChat = {
+                id: myInvitation.chatRoomID,
+                name: myInvitation.chatRoomName,
+            };
+            setChatRoom((prevChats) => [...prevChats, newChat]);
+        }
+    };
 
     // 当用户点击切换聊天室时，我们更新currentChatRoomIndex和currentChatRoomId
     const handleChatClick = (roomIndex, roomId) => {
+        setIsAddingUser(false);
         if (currentChatRoomIndex === roomIndex){
             setCurrentChatRoomIndex(null);
             setCurrentChatRoomId(null);
@@ -160,6 +218,37 @@ function ChatRoom() {
 
         // 用currentLogin和currentChat作为依赖项，任一变化都会重新运行effect
     }, [currentChatRoomId,currentLogin]);
+    useEffect(()=>{
+        const ws2Server = new WebSocket(`ws://localhost:8080/contact/${currentLogin}`);
+        ws2Server.onopen = (event) => {
+            console.log(ws2Server);
+        };
+        ws2Server.onmessage = (event) => {
+            const receivedMessage = JSON.parse(event.data);
+            const { inviter, receiver, chatRoomID, chatRoomName, messageType } = receivedMessage;
+            console.log("Message form server");
+            console.log(receivedMessage);
+            const newInvitation = new Invitation(
+                inviter,
+                receiver,
+                chatRoomID,
+                chatRoomName,
+                messageType
+            )
+            if (messageType === "INVITE") {
+                setMyInvitation(newInvitation);
+            }
+        };
+        ws2Server.onclose = function (event) {
+            console.log("Socket closed");
+        };
+        ws2Server.onerror = function (err) {
+            console.log('Socket encountered error: ', err.message, 'Closing socket');
+            // setWebSocketReady(false);
+            ws2Server.close();
+        };
+        setSocketServ(ws2Server);
+    },[currentLogin]);
     return (
         <Container maxWidth="lg" sx={{ marginTop: 4, height: 'calc(100vh - 64px)' }}>
             <Grid container spacing={2} sx={{ height: '100%' }}>
@@ -231,13 +320,15 @@ function ChatRoom() {
                     <Grid item xs={8} sx={{ height: '100%' }}>
                         <Paper elevation={3} sx={{ height: '100%' }}>
                             <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2, position: 'relative' }}>
-                                <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
-                                    <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0 }}>
-                                        {/*避免该用户的chatRoom为空*/}
+                                <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px', borderBottom: '2px solid #c7e3f7' }}>
+                                    <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0, textAlign: 'center' }}>
                                         {chatRoom[currentChatRoomIndex].name}
+                                        <IconButton sx={{ position: 'absolute', right: '5px' }} onClick={handleAddUserClick}>
+                                            <AddIcon sx={{ color: 'gray' }} />
+                                        </IconButton>
                                     </Typography>
                                 </Grid>
-                                <Grid item sx={{ flexGrow: 1, maxHeight: 'calc(100% - 80px)', overflowY: 'auto', paddingTop: '50px' }}>
+                                <Grid item sx={{ flexGrow: 1, maxHeight: 'calc(100% - 80px)', overflowY: 'auto', paddingTop: '70px' }}>
                                     {messageList?.map((message) => (
                                         <Box
                                             key={message.id}
@@ -295,6 +386,66 @@ function ChatRoom() {
                     </Grid>
                 )}
             </Grid>
+            {/* 添加用户输入框 */}
+            {isAddingUser && (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#ffffff',
+                        padding: 4,
+                        borderRadius: '8px',
+                        boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+                    }}
+                >
+                    <Typography variant="h6">Add User</Typography>
+                    <TextField
+                        value={newUserLogin}
+                        onChange={(e) => setNewUserLogin(e.target.value)}
+                        label="User Login"
+                        fullWidth
+                        variant="outlined"
+                        sx={{ marginTop: 2 }}
+                    />
+                    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+                        <Button variant="outlined" color="primary" onClick={handleAddUserConfirm} sx={{ marginTop: 2}}>
+                            Confirm
+                        </Button>
+                        <div style={{ width:'30px' }}></div>
+                        <Button variant="outlined" onClick={handleAddUserCancel} sx={{ marginTop: 2 }}>
+                            Cancel
+                        </Button>
+                    </Box>
+                </Box>
+            )}
+            {/* 接受邀请 */}
+            {myInvitation && (
+                <Box
+                    sx={{
+                        position: 'fixed',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#ffffff',
+                        padding: 4,
+                        borderRadius: '8px',
+                        boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+                    }}
+                >
+                    <Typography variant="h6">Invitation from {myInvitation.inviter} to {myInvitation.chatRoomName} </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+                        <Button variant="outlined" color="primary" onClick={() => handleResponseInvite("CONFIRM")} sx={{ marginTop: 2}}>
+                            Confirm
+                        </Button>
+                        <div style={{ width:'30px' }}></div>
+                        <Button variant="outlined" onClick={() => handleResponseInvite("REFUSE")} sx={{ marginTop: 2 }}>
+                            Refuse
+                        </Button>
+                    </Box>
+                </Box>
+            )}
         </Container>
     );
 };

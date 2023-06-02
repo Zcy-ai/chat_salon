@@ -43,8 +43,9 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception{
         ObjectMapper objectMapper = new ObjectMapper();
         InviteMessage inviteMessage = objectMapper.readValue(message.getPayload(), InviteMessage.class);
+        System.out.println(inviteMessage);
         if (inviteMessage.getMessageType().equals("CONFIRM")) {
-            User user = userService.findUserByLogin(inviteMessage.getReceiver());
+            User user = userService.findUserByLogin(inviteMessage.getInviter());
             ChatRoom chatRoom = chatRoomService.findChatRoomByID(inviteMessage.getChatRoomID());
             Contact contact = new Contact(user, chatRoom);
             contactService.addContact(contact);
