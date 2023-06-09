@@ -4,8 +4,13 @@ import com.sr03.chat_salon.model.User;
 import com.sr03.chat_salon.model.resp.UserLoginResp;
 import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.UserService;
+import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,13 +26,14 @@ public class UserServiceController {
     private UserService userService;
     @Autowired
     private ChatRoomService chatRoomService;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceController.class);
     @RequestMapping("register")
     public String ShowRegisterForm() {
         return "register";
     }
     @PostMapping (value = "/register")
-//    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseBody
     public ResponseEntity RegisterHandler(
             @RequestParam(value="lastName") String last_name,
@@ -64,9 +70,12 @@ public class UserServiceController {
 //            System.out.println("User Login Not Found :(");
             return ResponseEntity.notFound().build();
         }
+        String jwt = jwtTokenProvider.generateToken(login);
+        System.out.println(jwt);
         // 验证密码，验证成功跳转
         if (userService.authenticate(login, pwd)){
             request.getSession().setAttribute("user", user.getLogin());
+            String token = jwtTokenProvider.generateToken(login);
             logger.info("User "+login+" connected");
             // TODO 存储在线用户到redis
             List<User> user_list = null;
@@ -74,9 +83,7 @@ public class UserServiceController {
                 user_list = userService.getAllUsers();
             }
             List<ChatRoom> chatRoomList = chatRoomService.findChatRoomByUser(user.getId());
-//            System.out.println(user.getChatRooms());
-//            System.out.println(chatRoomList);
-            UserLoginResp resp = new UserLoginResp(user.getFirstName(),user.getLastName(), user_list, chatRoomList);
+            UserLoginResp resp = new UserLoginResp(user.getFirstName(),user.getLastName(), user_list, chatRoomList, token);
             return ResponseEntity.ok(resp);
         }
         return ResponseEntity.notFound().build();
@@ -100,7 +107,7 @@ public class UserServiceController {
         userService.deleteUserById(id);
         logger.info("User with id "+id+" deleted");
         List<User> user_list = userService.getAllUsers();
-        UserLoginResp resp = new UserLoginResp("","", user_list, null);
+        UserLoginResp resp = new UserLoginResp("","", user_list, null,"");
         return ResponseEntity.ok(resp);
     }
     @ExceptionHandler()

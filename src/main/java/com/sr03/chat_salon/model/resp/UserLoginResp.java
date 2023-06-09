@@ -10,15 +10,15 @@ public class UserLoginResp {
     String lastName;
     List<User> userList;
     List<ChatRoom> chatRoomList;
-
-    public UserLoginResp() {
-    }
-
-    public UserLoginResp(String firstName,String lastName, List<User> userList, List<ChatRoom> chatRoomList) {
+    String token;
+    public UserLoginResp(String firstName, String lastName, List<User> userList, List<ChatRoom> chatRoomList, String token) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userList = userList;
         this.chatRoomList = chatRoomList;
+        this.token = token;
+    }
+    public UserLoginResp() {
     }
 
     public List<ChatRoom> getChatRoomList() {
@@ -50,5 +50,13 @@ public class UserLoginResp {
 
     public void setLastName(String name) {
         this.lastName = name;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

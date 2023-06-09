@@ -5,6 +5,7 @@ import com.sr03.chat_salon.controller.ChatServiceController;
 import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.ContactService;
 import com.sr03.chat_salon.service.UserService;
+import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
@@ -24,10 +25,12 @@ public class SpringWebSocketConfig implements WebSocketConfigurer {
     private ChatServiceController chatServiceController;
     @Autowired
     private ChatRoomInvitationController chatRoomInvitationController;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
         registry
-                .addHandler(chatServiceController, "/chat/{login}/{chatID}").addHandler(chatRoomInvitationController, "/contact/{login}") // [2]
+                .addHandler(chatServiceController, "/chat/{login}/{chatID}/{token}").addHandler(chatRoomInvitationController, "/contact/{login}/{token}") // [2]
                 .addInterceptors()
                 .setAllowedOrigins("*");
     }
