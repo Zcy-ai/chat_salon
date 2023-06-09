@@ -10,13 +10,15 @@ import java.io.IOException;
 
 public class ChatNode {
     private String login; // 客户端login
+    private String roomId; // room id
     private WebSocketSession session; // 客户端session
     private String addr; // 客户端连接地址
 //    private String loginTime; // 登陆时间
     // DataQueue 消息队列（不确定，再看看）
 
-    public ChatNode(String login, WebSocketSession session, String addr) {
+    public ChatNode(String login, String roomId, WebSocketSession session, String addr) {
         this.login = login;
+        this.roomId = roomId;
         this.session = session;
         this.addr = addr;
 //        this.loginTime = loginTime;
@@ -37,7 +39,8 @@ public class ChatNode {
     public void setLogin(String login) {
         this.login = login;
     }
-
+    public String getRoomId() {return roomId;}
+    public void setRoomId(String roomId) {this.roomId = roomId;}
     public WebSocketSession getSession() {
         return session;
     }

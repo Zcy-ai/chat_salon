@@ -22,6 +22,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @CrossOrigin(origins = "*")
 @Component
@@ -48,9 +50,11 @@ public class ChatServiceController extends TextWebSocketHandler {
         // jwt 鉴权
         User user = userService.findUserByLogin(login);
         if (user != null && jwtTokenProvider.validateToken(token, user)) {
-            ChatNode chatNode = new ChatNode(login, session, session.getRemoteAddress().toString());
+            ChatNode chatNode = new ChatNode(login, chatID, session, session.getRemoteAddress().toString());
             log.info("收到Session", session);
             webSocketMap.put(login, chatNode);
+        } else {
+          log.info("WARN: Can't establish the websocket connection!")
         }
     }
 
@@ -73,9 +77,10 @@ public class ChatServiceController extends TextWebSocketHandler {
         List<User> userList = userService.findUserByChatRoom(chatRoom.getId());
         for (User user : userList) {
             if (webSocketMap.containsKey(user.getLogin())) {
-                System.out.println(user.getLogin());
                 try {
-                    webSocketMap.get(user.getLogin()).sendMessage(message);
+                    if (webSocketMap.get(user.getLogin()).getRoomId().equals(Integer.toString(message.getChatRoom()))){
+                        webSocketMap.get(user.getLogin()).sendMessage(message);
+                    }
                 } catch (Exception e) {
                 }
             }

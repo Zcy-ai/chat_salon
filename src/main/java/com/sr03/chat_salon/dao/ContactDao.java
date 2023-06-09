@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ContactDao {
     Contact addContact(Contact contact);
+    void deleteContact(int userID, int chatRoomID);
     List<Contact> findAllContact();
     List<Contact> findContactByUser(int userID);
     List<Contact> findContactByChatRoom(int chatRoomID);
