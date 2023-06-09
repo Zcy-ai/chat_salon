@@ -6,7 +6,6 @@ import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListSubhea
 import { Send as SendIcon, Add as AddIcon , Delete as DeleteIcon} from '@mui/icons-material';
 import SpeakerNotesIcon from '@mui/icons-material/SpeakerNotes';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import SentimentSatisfiedAltTwoToneIcon from '@mui/icons-material/SentimentSatisfiedAltTwoTone';
 
 class Invitation {
     constructor(inviter, receiver, chatRoomID, chatRoomName, messageType) {
@@ -185,7 +184,34 @@ function ChatRoom() {
             setMessage(''); //发送出消息后清空消息输入框
         }
     };
+    function stringToColor(string) {
+        let hash = 0;
+        let i;
 
+        /* eslint-disable no-bitwise */
+        for (i = 0; i < string.length; i += 1) {
+            hash = string.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        let color = '#';
+
+        for (i = 0; i < 3; i += 1) {
+            const value = (hash >> (i * 8)) & 0xff;
+            color += `00${value.toString(16)}`.slice(-2);
+        }
+        /* eslint-enable no-bitwise */
+
+        return color;
+    }
+
+    function stringAvatar(name) {
+        return {
+            sx: {
+                bgcolor: stringToColor(name),
+            },
+            children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
+        };
+    }
     // 监控currentChatRoomId和currentLogin,当两者发生变化，更新websocket连接
     let messageCounter = 0;
     useEffect(() => {
@@ -280,7 +306,7 @@ function ChatRoom() {
                             <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
                                 <Grid container alignItems="center" spacing={2}>
                                     <Grid item>
-                                        <SentimentSatisfiedAltTwoToneIcon />
+                                        <Avatar {...stringAvatar(currentFirstName+' '+currentLastName)} />
                                     </Grid>
                                     <Grid item>
                                         <Typography variant="h6">{currentFirstName} {currentLastName}</Typography>
@@ -381,8 +407,8 @@ function ChatRoom() {
                     <Grid item xs={8} sx={{ height: '100%' }}>
                         <Paper elevation={3} sx={{ height: '100%' }}>
                             <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2, position: 'relative' }}>
-                                <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px', borderBottom: '2px solid #c7e3f7' }}>
-                                    <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0, textAlign: 'center' }}>
+                                <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
+                                    <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0, textAlign: 'center', backgroundColor: '#f5f5f5', color: '#333333', fontWeight: 'bold' }}>
                                         {chatRoom[currentChatRoomIndex].name}
                                         <IconButton sx={{ position: 'absolute', right: '5px' }} onClick={handleAddUserClick}>
                                             <PersonAddIcon sx={{ color: 'gray' }} />
@@ -395,24 +421,27 @@ function ChatRoom() {
                                             key={message.id}
                                             sx={{
                                                 display: 'flex',
-                                                justifyContent: message.firstName+ ' '+ message.lastName === `${currentFirstName} ${currentLastName}` ? 'flex-end' : 'flex-start',
+                                                justifyContent: message.firstName + ' ' + message.lastName === `${currentFirstName} ${currentLastName}` ? 'flex-end' : 'flex-start',
                                                 mb: 1,
                                             }}
                                         >
                                             <Box
                                                 sx={{
-                                                    backgroundColor: message.firstName+ ' '+ message.lastName === `${currentFirstName} ${currentLastName}` ? '#f3e5f5' : '#e1f5fe',
-                                                    color: message.firstName+ ' '+ message.lastName === `${currentFirstName} ${currentLastName}` ? '#000000' : '#000000',
+                                                    backgroundColor: message.firstName + ' ' + message.lastName === `${currentFirstName} ${currentLastName}` ? '#f3e5f5' : '#e1f5fe',
+                                                    color: message.firstName + ' ' + message.lastName === `${currentFirstName} ${currentLastName}` ? '#000000' : '#000000',
                                                     padding: '8px 12px',
                                                     borderRadius: '8px',
-                                                    maxWidth: '70%',
+                                                    maxWidth: '300px',
                                                     width: 'fit-content',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    wordWrap: 'break-word',
                                                 }}
                                             >
                                                 <Typography variant="caption" sx={{ color: 'gray', fontSize: '0.75rem', textAlign: 'right' }}>
                                                     {message.timestamp}
                                                 </Typography>
-                                                <Typography variant="body1">{message.content}</Typography>
+                                                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>{message.content}</Typography>
                                             </Box>
                                         </Box>
                                     ))}
