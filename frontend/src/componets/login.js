@@ -68,6 +68,7 @@ function Login() {
                         lastName:response.data.lastName,
                         chatRoomList: response.data.chatRoomList,
                         userList:response.data.userList,
+                        token: response.data.token,
                     };
                     console.log(state);
                     navigate("/chatRoom", {state});

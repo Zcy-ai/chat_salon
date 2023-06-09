@@ -53,7 +53,7 @@ function ChatRoom() {
     const [isAddingUser, setIsAddingUser] = useState(false);
     const [newUserLogin, setNewUserLogin] = useState('');
     const [myInvitation, setMyInvitation] = useState(null);
-
+    const [token, setToken] = useState(state.token);
     const handleAddUserClick = () => {
         if (isAddingUser){
             setIsAddingUser(false);
@@ -180,7 +180,7 @@ function ChatRoom() {
     let messageCounter = 0;
     useEffect(() => {
         // 创建新的WebSocket连接
-        const newSocket = new WebSocket(`ws://localhost:8080/chat/${currentLogin}/${currentChatRoomId}`);
+        const newSocket = new WebSocket(`ws://localhost:8080/chat/${currentLogin}/${currentChatRoomId}/${token}`);
         console.log(chatRoom);
         // 设置WebSocket事件处理程序
         newSocket.onopen = (event) => {
@@ -219,7 +219,7 @@ function ChatRoom() {
         // 用currentLogin和currentChat作为依赖项，任一变化都会重新运行effect
     }, [currentChatRoomId,currentLogin]);
     useEffect(()=>{
-        const ws2Server = new WebSocket(`ws://localhost:8080/contact/${currentLogin}`);
+        const ws2Server = new WebSocket(`ws://localhost:8080/contact/${currentLogin}/${token}`);
         ws2Server.onopen = (event) => {
             console.log(ws2Server);
         };

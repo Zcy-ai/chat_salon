@@ -5,6 +5,7 @@ import com.sr03.chat_salon.model.*;
 import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.ContactService;
 import com.sr03.chat_salon.service.UserService;
+import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     private ContactService contactService;
     @Autowired
     private  ChatRoomService chatRoomService;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     private Logger log = LoggerFactory.getLogger(this.getClass());
     private static Map<String, WebSocketSession> webSocketMap = new LinkedHashMap<>();
     public ChatRoomInvitationController() {
@@ -36,7 +39,13 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String login = session.getUri().getPath().split("/")[2];
-        webSocketMap.put(login,session);
+        String token = session.getUri().getPath().split("/")[3];
+        // jwt鉴权
+        User user = userService.findUserByLogin(login);
+        if (user != null && jwtTokenProvider.validateToken(token, user)) {
+            log.info("收到Session", session);
+            webSocketMap.put(login, session);
+        }
     }
     @Override
     @Transactional // TODO 待定

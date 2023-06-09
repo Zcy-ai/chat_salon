@@ -6,6 +6,7 @@ import com.sr03.chat_salon.model.ChatRoom;
 import com.sr03.chat_salon.model.User;
 import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.UserService;
+import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class ChatServiceController extends TextWebSocketHandler {
     private ChatRoomService chatRoomService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     private static Map<String, ChatNode> webSocketMap = new LinkedHashMap<>();
     private String login;
     private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -40,11 +43,15 @@ public class ChatServiceController extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String login = session.getUri().getPath().split("/")[2];
         String chatId = session.getUri().getPath().split("/")[3];
+        String token = session.getUri().getPath().split("/")[4];
         this.login = login;
-        ChatNode chatNode = new ChatNode(login, session, session.getRemoteAddress().toString());
-        log.info("收到Session", session);
-        webSocketMap.put(login, chatNode);
-//        log.info("Utilisateur {} entre dans la salle du chat!", login);
+        // jwt 鉴权
+        User user = userService.findUserByLogin(login);
+        if (user != null && jwtTokenProvider.validateToken(token, user)) {
+            ChatNode chatNode = new ChatNode(login, session, session.getRemoteAddress().toString());
+            log.info("收到Session", session);
+            webSocketMap.put(login, chatNode);
+        }
     }
 
     @Override
