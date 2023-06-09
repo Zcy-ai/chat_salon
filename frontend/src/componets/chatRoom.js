@@ -48,6 +48,7 @@ function ChatRoom() {
     // const [currentMessageId, setCurrentMessageId] = useState(0);
     const [newChatName, setNewChatName] = useState('');
     const [isChatNameValid, setIsChatNameValid] = useState(true);
+    const [isNewUserLoginValid, setIsNewUserLoginValid] = useState(null);
     const [message, setMessage] = useState(''); //发送消息的输入框
     const [socket, setSocket] = useState(null); //websocket connecté pour l'instant
     const [socketServ, setSocketServ] = useState(null); //websocket to server
@@ -71,16 +72,23 @@ function ChatRoom() {
     };
 
     const handleAddUserConfirm = () => {
-        const newInvitation = new Invitation(
-            currentLogin,
-            newUserLogin,
-            currentChatRoomId,
-            chatRoom[currentChatRoomIndex].name,
-            "INVITE"
-        )
-        socketServ.send(JSON.stringify(newInvitation));
-        setIsAddingUser(false);
-        setNewUserLogin('');
+        const trimmedLogin = newUserLogin.trim(); // 去除输入两边的空格
+        if (trimmedLogin !== '' && trimmedLogin !== currentLogin ) {
+            // 执行添加用户的逻辑
+            setIsNewUserLoginValid(null)
+            const newInvitation = new Invitation(
+                currentLogin,
+                trimmedLogin,
+                currentChatRoomId,
+                chatRoom[currentChatRoomIndex].name,
+                "INVITE"
+            )
+            socketServ.send(JSON.stringify(newInvitation));
+            setIsAddingUser(false);
+            setNewUserLogin('');
+        }else{
+            setIsNewUserLoginValid(false)
+        }
     };
     const handleResponseInvite = (value) => {
         const newInvitation = new Invitation(
@@ -243,11 +251,14 @@ function ChatRoom() {
             if (messageType === "INVITE") {
                 setMyInvitation(newInvitation);
             }else if (messageType === "DELETEROOM") {
-                // TODO
+                setCurrentChatRoomIndex(null);
+                setCurrentChatRoomId(null);
+                setMessageList([]);
                 setChatRoom((prevChats) => {
                     const updatedChats = prevChats.filter((chat) => chat.id !== chatRoomID);
                     return updatedChats;
                 });
+
             }
         };
         ws2Server.onclose = function (event) {
@@ -453,11 +464,22 @@ function ChatRoom() {
                     <Typography variant="h6">Add User</Typography>
                     <TextField
                         value={newUserLogin}
-                        onChange={(e) => setNewUserLogin(e.target.value)}
+                        onChange={(e) => {
+                            setNewUserLogin(e.target.value)
+                            setIsNewUserLoginValid(null)
+                        }}
                         label="User Login"
                         fullWidth
                         variant="outlined"
+                        error={isNewUserLoginValid === false}
+                        helperText={isNewUserLoginValid === false ? (newUserLogin === '' ? 'Cannot be empty' : 'Cannot invite yourself') : ''}
                         sx={{ marginTop: 2 }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleAddUserConfirm();
+                            }
+                        }}
                     />
                     <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
                         <Button variant="outlined" color="primary" onClick={handleAddUserConfirm} sx={{ marginTop: 2}}>
