@@ -4,6 +4,7 @@ import com.sr03.chat_salon.model.ChatMessage;
 import com.sr03.chat_salon.model.ChatNode;
 import com.sr03.chat_salon.model.ChatRoom;
 import com.sr03.chat_salon.model.User;
+import com.sr03.chat_salon.service.ChatHistoryService;
 import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.UserService;
 import com.sr03.chat_salon.utils.JwtTokenProvider;
@@ -34,6 +35,8 @@ public class ChatServiceController extends TextWebSocketHandler {
     private UserService userService;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private ChatHistoryService chatHistoryService;
     private static Map<String, ChatNode> webSocketMap = new LinkedHashMap<>();
     private String login;
     private Logger log = LoggerFactory.getLogger(this.getClass());
@@ -63,6 +66,8 @@ public class ChatServiceController extends TextWebSocketHandler {
         log.info("收到客户端{}消息：{}", session.getId(), message.getPayload());
         ObjectMapper objectMapper = new ObjectMapper();
         ChatMessage messageToSend = objectMapper.readValue(message.getPayload(), ChatMessage.class);
+        // 将消息存储于redis: key{chatRoomID} value{ChatMessage json格式}
+        chatHistoryService.addChatHistory(messageToSend.getChatRoom(), messageToSend);
         broadcast(messageToSend);
     }
 
