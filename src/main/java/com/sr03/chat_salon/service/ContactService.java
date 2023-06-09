@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface ContactService {
     Contact addContact(Contact contact);
+    void deleteContact(int userID, int chatRoomID);
 //    void deleteContactB
     List<Contact> findAllContact();
     List<Contact> findContactByChatRoom(int chatRoomID);

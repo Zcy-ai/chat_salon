@@ -2,6 +2,7 @@ package com.sr03.chat_salon.dao.impl;
 
 import com.sr03.chat_salon.dao.ContactDao;
 import com.sr03.chat_salon.model.Contact;
+import com.sr03.chat_salon.model.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -21,6 +22,16 @@ public class ContactDaoImpl implements ContactDao {
         Session session = this.sessionFactory.getCurrentSession();
         session.save(contact);
         return contact;
+    }
+    @Override
+    @Transactional()
+    public void deleteContact(int userID, int chatRoomID) {
+        String hql = "delete from Contact c where c.user.id = :userID and c.chatRoom.id = :chatRoomID";
+        Session session = this.sessionFactory.getCurrentSession();
+        Query query = session.createQuery(hql);
+        query.setParameter("userID", userID);
+        query.setParameter("chatRoomID", chatRoomID);
+        query.executeUpdate();
     }
 
     @Override

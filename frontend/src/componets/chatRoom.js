@@ -179,44 +179,48 @@ function ChatRoom() {
     // 监控currentChatRoomId和currentLogin,当两者发生变化，更新websocket连接
     let messageCounter = 0;
     useEffect(() => {
-        // 创建新的WebSocket连接
-        const newSocket = new WebSocket(`ws://localhost:8080/chat/${currentLogin}/${currentChatRoomId}`);
-        console.log(chatRoom);
-        // 设置WebSocket事件处理程序
-        newSocket.onopen = (event) => {
-            console.log(newSocket);
-        };
-        newSocket.onmessage = (event) => {
-            const receivedMessage = JSON.parse(event.data);
-            const { sender, firstName, lastName, content } = receivedMessage;// TODO websocket接收ChatID，让消息只在一个群组里发送而不是广播
-            const currentDate = new Date().toLocaleString(); // 添加日期
-            const formattedMessage = `${firstName} ${lastName}: ${content}`
-            const newMessage = new MessageToPrint(
-                messageCounter,// TODO index还是id
-                sender,
-                firstName,
-                lastName,
-                formattedMessage,
-                currentDate,
-            );
-            setMessageList(prevState => {
-                const updatedList = [...prevState, newMessage];
-                return updatedList;
-            });
-            messageCounter++; // 递增计数器变量
-        };
-        newSocket.onclose = function (event) {
-            console.log("Socket closed");
-        };
-        newSocket.onerror = function (err) {
-            console.log('Socket encountered error: ', err.message, 'Closing socket');
-            // setWebSocketReady(false);
-            socket.close();
-        };
-        // 更新state中的socket
-        setSocket(newSocket);
+        if (currentChatRoomId === null){
+            setSocket(null);
+        }else {
+            // 创建新的WebSocket连接
+            const newSocket = new WebSocket(`ws://localhost:8080/chat/${currentLogin}/${currentChatRoomId}`);
+            console.log(chatRoom);
+            // 设置WebSocket事件处理程序
+            newSocket.onopen = (event) => {
+                console.log(newSocket);
+            };
+            newSocket.onmessage = (event) => {
+                const receivedMessage = JSON.parse(event.data);
+                const {sender, firstName, lastName, content} = receivedMessage;// TODO websocket接收ChatID，让消息只在一个群组里发送而不是广播
+                const currentDate = new Date().toLocaleString(); // 添加日期
+                const formattedMessage = `${firstName} ${lastName}: ${content}`
+                const newMessage = new MessageToPrint(
+                    messageCounter,// TODO index还是id
+                    sender,
+                    firstName,
+                    lastName,
+                    formattedMessage,
+                    currentDate,
+                );
+                setMessageList(prevState => {
+                    const updatedList = [...prevState, newMessage];
+                    return updatedList;
+                });
+                messageCounter++; // 递增计数器变量
+            };
+            newSocket.onclose = function (event) {
+                console.log("Socket closed");
+            };
+            newSocket.onerror = function (err) {
+                console.log('Socket encountered error: ', err.message, 'Closing socket');
+                // setWebSocketReady(false);
+                socket.close();
+            };
+            // 更新state中的socket
+            setSocket(newSocket);
 
-        // 用currentLogin和currentChat作为依赖项，任一变化都会重新运行effect
+            // 用currentLogin和currentChat作为依赖项，任一变化都会重新运行effect
+        }
     }, [currentChatRoomId,currentLogin]);
     useEffect(()=>{
         const ws2Server = new WebSocket(`ws://localhost:8080/contact/${currentLogin}`);

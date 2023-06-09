@@ -13,6 +13,9 @@ public class ChatRoom {
 
     @Column(name = "name", nullable = false, length = 50)
     private String name;
+    @ManyToOne
+    @JoinColumn(name = "chef")
+    private User chef;
 
     @ManyToMany(targetEntity = User.class, cascade = {CascadeType.ALL})
     @JoinTable(
@@ -26,13 +29,12 @@ public class ChatRoom {
     public ChatRoom() {
     }
 
-    public ChatRoom(String name) {
+    public ChatRoom(String name, User chef) {
         this.name = name;
+        this.chef = chef;
     }
 
-    public int getId() {
-        return id;
-    }
+    public int getId() {return id;}
 
     public String getName() {
         return name;
@@ -41,7 +43,8 @@ public class ChatRoom {
     public void setName(String name) {
         this.name = name;
     }
-
+    public User getChef() {return chef;}
+    public void setChef(User chef) {this.chef = chef;}
 
     public Set<User> getUsers() {
         return users;

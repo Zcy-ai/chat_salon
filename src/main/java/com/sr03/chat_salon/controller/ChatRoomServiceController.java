@@ -38,7 +38,7 @@ public class ChatRoomServiceController {
             return ResponseEntity.notFound().build();
         }
         // 持久化chatRoom
-        ChatRoom chatRoom = new ChatRoom(chatName);
+        ChatRoom chatRoom = new ChatRoom(chatName, user);
         chatRoomService.addChatRoom(chatRoom);
 //        chatRoom.addUser(user); // 用这个函数会出现lazy proxy bug
         // 持久化创建者和chatRoom的contact
@@ -59,7 +59,12 @@ public class ChatRoomServiceController {
             return ResponseEntity.notFound().build();
         }
         // TODO 验证相应的Contact也被删除
-        chatRoomService.deleteChatRoomByID(chatRoomID);
+        ChatRoom chatroom = chatRoomService.findChatRoomByID(chatRoomID);
+        if (chatroom.getChef().getId() == user.getId()){ // 如果是群主，则删除群
+            chatRoomService.deleteChatRoomByID(chatRoomID);
+        }else{
+            contactService.deleteContact(user.getId(), chatRoomID);//如果不是群主，删除他所对应的contact
+        }
         return ResponseEntity.ok().build();
     }
 }

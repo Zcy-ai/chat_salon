@@ -18,6 +18,9 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    public void deleteContact(int userID, int chatRoomID) {contactDao.deleteContact( userID, chatRoomID);};
+
+    @Override
     public List<Contact> findAllContact() {
         return contactDao.findAllContact();
     }
