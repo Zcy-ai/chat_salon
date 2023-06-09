@@ -2,8 +2,11 @@ import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {useEffect, useState} from "react";
 
-import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListItemIcon, ListItemText, Paper, TextField, Typography, Box} from '@mui/material';
+import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListSubheader, ListItemIcon, ListItemText, Paper, TextField, Typography, Box} from '@mui/material';
 import { Send as SendIcon, Add as AddIcon , Delete as DeleteIcon} from '@mui/icons-material';
+import SpeakerNotesIcon from '@mui/icons-material/SpeakerNotes';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SentimentSatisfiedAltTwoToneIcon from '@mui/icons-material/SentimentSatisfiedAltTwoTone';
 
 class Invitation {
     constructor(inviter, receiver, chatRoomID, chatRoomName, messageType) {
@@ -53,7 +56,6 @@ function ChatRoom() {
     const [isAddingUser, setIsAddingUser] = useState(false);
     const [newUserLogin, setNewUserLogin] = useState('');
     const [myInvitation, setMyInvitation] = useState(null);
-
     const handleAddUserClick = () => {
         if (isAddingUser){
             setIsAddingUser(false);
@@ -148,8 +150,7 @@ function ChatRoom() {
                 if (response.status === 200) {
                     console.log(response.data);
                     const newChat = {
-                        id: response.data.chatRoomId,
-                        name: response.data.chatRoomName,
+                        ...response.data,
                     };
                     setChatRoom((prevChats) => [...prevChats, newChat]);
                 } else {
@@ -191,7 +192,7 @@ function ChatRoom() {
             };
             newSocket.onmessage = (event) => {
                 const receivedMessage = JSON.parse(event.data);
-                const {sender, firstName, lastName, content} = receivedMessage;// TODO websocket接收ChatID，让消息只在一个群组里发送而不是广播
+                const {sender, firstName, lastName, content} = receivedMessage;
                 const currentDate = new Date().toLocaleString(); // 添加日期
                 const formattedMessage = `${firstName} ${lastName}: ${content}`
                 const newMessage = new MessageToPrint(
@@ -241,6 +242,12 @@ function ChatRoom() {
             )
             if (messageType === "INVITE") {
                 setMyInvitation(newInvitation);
+            }else if (messageType === "DELETEROOM") {
+                // TODO
+                setChatRoom((prevChats) => {
+                    const updatedChats = prevChats.filter((chat) => chat.id !== chatRoomID);
+                    return updatedChats;
+                });
             }
         };
         ws2Server.onclose = function (event) {
@@ -262,7 +269,7 @@ function ChatRoom() {
                             <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
                                 <Grid container alignItems="center" spacing={2}>
                                     <Grid item>
-                                        <Avatar />
+                                        <SentimentSatisfiedAltTwoToneIcon />
                                     </Grid>
                                     <Grid item>
                                         <Typography variant="h6">{currentFirstName} {currentLastName}</Typography>
@@ -272,26 +279,65 @@ function ChatRoom() {
                             <Grid item sx={{ flexGrow: 1 }}>
                                 <div style={{ height: '60px' }}></div>
                                 <List component="nav" sx={{ flexGrow: 1, maxHeight: 'calc(100% - 160px)', overflowY: 'auto' }}>
-                                    {chatRoom?.map((chat, index) => (
-                                        <ListItem
-                                            key={chat.id}
-                                            button
-                                            selected={chat.id === currentChatRoomId}
-                                            onClick={() => handleChatClick(index, chat.id)}
-                                            sx={{
-                                                borderRadius: 1,
-                                                marginBottom: 1
-                                            }}
-                                        >
-                                            <ListItemIcon sx={{ minWidth: 32 }}>{<Avatar />}</ListItemIcon>
-                                            <ListItemText primary={chat.name} />
-                                            <IconButton edge="end" onClick={() => handleDeleteChat(chat.id)}>
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        </ListItem>
-                                    ))}
+                                    <ListSubheader sx={{ backgroundColor: '#f3e5f5', borderBottom: '1px solid #000' }}>Chef</ListSubheader>
+                                    {chatRoom?.map((chat, index) => {
+                                        const isChef = chat.chef && chat.chef.login === currentLogin;
+
+                                        if (isChef) {
+                                            return (
+                                                <ListItem
+                                                    key={chat.id}
+                                                    button
+                                                    selected={chat.id === currentChatRoomId}
+                                                    onClick={() => handleChatClick(index, chat.id)}
+                                                    sx={{
+                                                        borderRadius: 1,
+                                                        marginBottom: 1,
+                                                        backgroundColor: '#f3e5f5'
+                                                    }}
+                                                >
+                                                    <ListItemIcon sx={{ minWidth: 32 }}>{<SpeakerNotesIcon />}</ListItemIcon>
+                                                    <ListItemText primary={chat.name} />
+                                                    <IconButton edge="end" onClick={() => handleDeleteChat(chat.id)}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </ListItem>
+                                            );
+                                        }
+
+                                        return null; // 不在 "Chef" 分类中的聊天室项将不会显示
+                                    })}
+                                    <ListSubheader sx={{ backgroundColor: '#e1f5fe', borderBottom: '1px solid #000'}}>Member</ListSubheader>
+                                    {chatRoom?.map((chat, index) => {
+                                        const isChef = chat.chef && chat.chef.login === currentLogin;
+
+                                        if (!isChef) {
+                                            return (
+                                                <ListItem
+                                                    key={chat.id}
+                                                    button
+                                                    selected={chat.id === currentChatRoomId}
+                                                    onClick={() => handleChatClick(index, chat.id)}
+                                                    sx={{
+                                                        borderRadius: 1,
+                                                        marginBottom: 1,
+                                                        backgroundColor: '#e1f5fe'
+                                                    }}
+                                                >
+                                                    <ListItemIcon sx={{ minWidth: 32 }}>{<SpeakerNotesIcon />}</ListItemIcon>
+                                                    <ListItemText primary={chat.name} />
+                                                    <IconButton edge="end" onClick={() => handleDeleteChat(chat.id)}>
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                </ListItem>
+                                            );
+                                        }
+
+                                        return null; // 不在 "Member" 分类中的聊天室项将不会显示
+                                    })}
                                 </List>
                             </Grid>
+
                             <Grid item sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, margin: '10px' }}>
                                 <Button startIcon={<AddIcon />} fullWidth variant="contained" color="primary" onClick={handleCreateChat}>
                                     Create Chat
@@ -328,7 +374,7 @@ function ChatRoom() {
                                     <Typography variant="h6" sx={{ padding: 2, position: 'sticky', bottom: 0, textAlign: 'center' }}>
                                         {chatRoom[currentChatRoomIndex].name}
                                         <IconButton sx={{ position: 'absolute', right: '5px' }} onClick={handleAddUserClick}>
-                                            <AddIcon sx={{ color: 'gray' }} />
+                                            <PersonAddIcon sx={{ color: 'gray' }} />
                                         </IconButton>
                                     </Typography>
                                 </Grid>

@@ -30,7 +30,7 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     @Autowired
     private  ChatRoomService chatRoomService;
     private Logger log = LoggerFactory.getLogger(this.getClass());
-    private static Map<String, WebSocketSession> webSocketMap = new LinkedHashMap<>();
+    public static Map<String, WebSocketSession> webSocketMap = new LinkedHashMap<>();
     public ChatRoomInvitationController() {
     }
     @Override
@@ -60,6 +60,7 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     }
 
     public void sendMessage(InviteMessage message) throws IOException {
+        log.info("Invite message: "+message);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(message);
         TextMessage textMessage = new TextMessage(jsonString);

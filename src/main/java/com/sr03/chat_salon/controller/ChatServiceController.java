@@ -43,8 +43,9 @@ public class ChatServiceController extends TextWebSocketHandler {
         String login = session.getUri().getPath().split("/")[2];
         String chatId = session.getUri().getPath().split("/")[3];
         this.login = login;
-
         log.info("收到Session");
+        System.out.println(session);
+
         String roomId = session.getUri().toString();
         System.out.println(roomId);
         String regex = "/(\\d+)$";
