@@ -21,6 +21,8 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @CrossOrigin(origins = "*")
 @Component
@@ -41,9 +43,21 @@ public class ChatServiceController extends TextWebSocketHandler {
         String login = session.getUri().getPath().split("/")[2];
         String chatId = session.getUri().getPath().split("/")[3];
         this.login = login;
-        ChatNode chatNode = new ChatNode(login, session, session.getRemoteAddress().toString());
-        log.info("收到Session", session);
-        webSocketMap.put(login, chatNode);
+
+        log.info("收到Session");
+        String roomId = session.getUri().toString();
+        System.out.println(roomId);
+        String regex = "/(\\d+)$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(roomId);
+        if (matcher.find()) {
+            String roomID = matcher.group(1);
+            System.out.println(roomID);
+            ChatNode chatNode = new ChatNode(login, roomID, session, session.getRemoteAddress().toString());
+            webSocketMap.put(login, chatNode);
+        } else {
+            System.out.println("RoomID not found.");
+        }
 //        log.info("Utilisateur {} entre dans la salle du chat!", login);
     }
 
@@ -66,9 +80,10 @@ public class ChatServiceController extends TextWebSocketHandler {
         List<User> userList = userService.findUserByChatRoom(chatRoom.getId());
         for (User user : userList) {
             if (webSocketMap.containsKey(user.getLogin())) {
-                System.out.println(user.getLogin());
                 try {
-                    webSocketMap.get(user.getLogin()).sendMessage(message);
+                    if (webSocketMap.get(user.getLogin()).getRoomId().equals(Integer.toString(message.getChatRoom()))){
+                        webSocketMap.get(user.getLogin()).sendMessage(message);
+                    }
                 } catch (Exception e) {
                 }
             }
