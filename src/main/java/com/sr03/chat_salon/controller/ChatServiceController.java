@@ -50,11 +50,11 @@ public class ChatServiceController extends TextWebSocketHandler {
         // jwt 鉴权
         User user = userService.findUserByLogin(login);
         if (user != null && jwtTokenProvider.validateToken(token, user)) {
-            ChatNode chatNode = new ChatNode(login, chatID, session, session.getRemoteAddress().toString());
+            ChatNode chatNode = new ChatNode(login, chatId, session, session.getRemoteAddress().toString());
             log.info("收到Session", session);
             webSocketMap.put(login, chatNode);
         } else {
-          log.info("WARN: Can't establish the websocket connection!")
+          log.info("WARN: Can't establish the websocket connection!");
         }
     }
 

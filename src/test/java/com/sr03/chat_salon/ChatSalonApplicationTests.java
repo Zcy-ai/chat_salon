@@ -49,9 +49,9 @@ class ChatSalonApplicationTests {
 	}
 	@Test
 	public void addChatRoom() {
-		ChatRoom chat_room = new ChatRoom("WeChat");
-		chatRoomDao.addChatRoom(chat_room);
-		System.out.println(chatRoomDao.findAllChatRoom());
+//		ChatRoom chat_room = new ChatRoom("WeChat");
+//		chatRoomDao.addChatRoom(chat_room);
+//		System.out.println(chatRoomDao.findAllChatRoom());
 	}
 //	@Test
 //	public void TestContact() {

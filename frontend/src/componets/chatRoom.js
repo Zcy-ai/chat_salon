@@ -122,7 +122,7 @@ function ChatRoom() {
         // if (roomId === currentChatRoomIndex){ //删除当前的，默认切换到 0 号聊天室
         //     setCurrentChatRoomIndex(0);
         // }
-        axios.post(`http://localhost:8080/delete_chatroom/${currentLogin}/${roomId}`)
+        axios.post(`http://localhost:8080/delete_chatroom/${currentLogin}/${roomId}/${token}`)
             .then((response) => {
                 if (response.status === 200) {
                     // 后端删除成功后前端也进行删除
@@ -146,7 +146,7 @@ function ChatRoom() {
             setIsChatNameValid(false);
             return;
         }
-        axios.post(`http://localhost:8080/create_chatroom/${currentLogin}/${newChatName}`)
+        axios.post(`http://localhost:8080/create_chatroom/${currentLogin}/${newChatName}/${token}`)
             .then((response) => {
                 if (response.status === 200) {
                     console.log(response.data);

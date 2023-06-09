@@ -9,6 +9,7 @@ import com.sr03.chat_salon.model.resp.ChatRoomResp;
 import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.ContactService;
 import com.sr03.chat_salon.service.UserService;
+import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,16 +34,21 @@ public class ChatRoomServiceController {
     private ContactService contactService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     private static final Logger logger = LoggerFactory.getLogger(ChatRoomServiceController.class);
-    @PostMapping(value = "/create_chatroom/{login}/{chatName}")
+    @PostMapping(value = "/create_chatroom/{login}/{chatName}/{token}")
     @ResponseBody
     public ResponseEntity<ChatRoomResp> createChatRoomHandler(
             @PathVariable("login") String login,
-            @PathVariable("chatName") String chatName) {
+            @PathVariable("chatName") String chatName,
+            @PathVariable("token") String token) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
-            logger.info("User "+login+" Not Found!");
+            logger.info("[WARN]: User "+login+" Not Found!");
             return ResponseEntity.notFound().build();
+        } else if (!jwtTokenProvider.validateToken(token, user)) {
+            logger.info("[WARN]: Token ERROR");
         }
         // 持久化chatRoom
         ChatRoom chatRoom = new ChatRoom(chatName, user);
@@ -55,16 +61,19 @@ public class ChatRoomServiceController {
         return ResponseEntity.ok(resp);
     }
 
-    @PostMapping(value = "/delete_chatroom/{user}/{chatRoomID}")
+    @PostMapping(value = "/delete_chatroom/{user}/{chatRoomID}/{token}")
     @ResponseBody
     @Transactional
     public ResponseEntity deleteChatRoomHandler(
             @PathVariable("user") String login,
-            @PathVariable("chatRoomID") Integer chatRoomID) {
+            @PathVariable("chatRoomID") Integer chatRoomID,
+            @PathVariable("token") String token) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
-            logger.info("User "+login+" Not Found!");
+            logger.info("[WARN]: User "+login+" Not Found!");
             return ResponseEntity.notFound().build();
+        } else if (!jwtTokenProvider.validateToken(token, user)) {
+            logger.info("[WARN]: Token ERROR");
         }
         ChatRoom chatroom = chatRoomService.findChatRoomByID(chatRoomID);
         if (chatroom.getChef().getId() == user.getId()){ // 如果是群主，则删除群
