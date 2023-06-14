@@ -88,28 +88,28 @@ public class UserServiceController {
         }
         return ResponseEntity.notFound().build();
     }
-
-    @RequestMapping (value = "/getAllUsers")
-    public String getAllUsersHandler(Model model) {
-        List<User> user_list = userService.getAllUsers();
-        model.addAttribute("users", user_list);
-        return "admin";
-    }
-
-    @GetMapping (value = "/updateUser")
-    public String updateUserHandler() {
-        // TODO 编辑用户实现
-        return null;
-    }
-    @DeleteMapping (value = "/deleteUser/{user_id}")
-    @ResponseBody
-    public ResponseEntity deleteUserHandler(@PathVariable("user_id") int id){
-        userService.deleteUserById(id);
-        logger.info("User with id "+id+" deleted");
-        List<User> user_list = userService.getAllUsers();
-        UserLoginResp resp = new UserLoginResp("","", user_list, null,"");
-        return ResponseEntity.ok(resp);
-    }
+//
+//    @RequestMapping (value = "/getAllUsers")
+//    public String getAllUsersHandler(Model model) {
+//        List<User> user_list = userService.getAllUsers();
+//        model.addAttribute("users", user_list);
+//        return "admin";
+//    }
+//
+//    @GetMapping (value = "/updateUser")
+//    public String updateUserHandler() {
+//        // TODO 编辑用户实现
+//        return null;
+//    }
+//    @DeleteMapping (value = "/deleteUser/{user_id}")
+//    @ResponseBody
+//    public ResponseEntity deleteUserHandler(@PathVariable("user_id") int id){
+//        userService.deleteUserById(id);
+//        logger.info("User with id "+id+" deleted");
+//        List<User> user_list = userService.getAllUsers();
+//        UserLoginResp resp = new UserLoginResp("","", user_list, null,"");
+//        return ResponseEntity.ok(resp);
+//    }
     @ExceptionHandler()
     @ResponseBody
     public String error(Exception e){

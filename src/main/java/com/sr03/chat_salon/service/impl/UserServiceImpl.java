@@ -10,7 +10,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -64,7 +65,10 @@ public class UserServiceImpl implements UserService {
     public void deleteUserById(int id) {
         userDao.deleteUserById(id);
     }
-
+    @Override
+    public void enableDisableById(int id) {
+        userDao.enableDisableById(id);
+    };
     @Override
     @Transactional
     public void addUser(User user) {
@@ -82,5 +86,16 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
-
+    @Override
+    public Page<User> searchUsers(String searchQuery, Pageable pageable, String sortBy) {
+        return userDao.searchUsers(searchQuery, pageable, sortBy);
+    }
+    @Override
+    public Page<User> getAllUsers(Pageable pageable, String sortBy) {
+        return userDao.findAll(pageable, sortBy);
+    }
+    @Override
+    public Page<User> getDisabledUsers(Pageable pageable, String sortBy) {
+        return userDao.findDisabledUsers(pageable, sortBy);
+    };
 }

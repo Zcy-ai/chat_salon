@@ -1,6 +1,8 @@
 package com.sr03.chat_salon.dao;
 
 import com.sr03.chat_salon.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,7 +15,11 @@ public interface UserDao {
     // 改
     void updateUser(User user);
     // 查
+    void enableDisableById(int id);
     User findUserByLogin(String login);
     List<User> findAllUser();
     List<User> findUserByChatRoom(int chatRoomID);
+    Page<User> searchUsers(String searchQuery, Pageable pageable, String sortBy);
+    Page<User> findAll(Pageable pageable, String sortBy);
+    Page<User> findDisabledUsers(Pageable pageable, String sortBy);
 }

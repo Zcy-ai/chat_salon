@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/admin/getAllUsers/all">Liste des utilisateurs</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="/admin/getAllUsers/disabled">Liste des comptes d'utilisateurs désactivés</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+<!--            <div class="collapse navbar-collapse" id="navbarNav">-->
+<!--                <ul class="navbar-nav">-->
+<!--                    <li class="nav-item">-->
+<!--                        <a class="nav-link" href="/admin/disabled-accounts">Liste des comptes d'utilisateurs désactivés</a>-->
+<!--                    </li>-->
+<!--                </ul>-->
+<!--            </div>-->
+        </div>
+    </nav>
+
+    <div class="content">
+        <h1>Liste des utilisateurs</h1>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th><a th:href="@{/admin/getAllUsers/${status}(status=${status}, sortBy='id')}">ID</a></th>
+                    <th><a th:href="@{/admin/getAllUsers/${status}(status=${status}, sortBy='lastName')}">Nom</a></th>
+                    <th><a th:href="@{/admin/getAllUsers/${status}(status=${status}, sortBy='firstName')}">Prénom</a></th>
+                    <th><a th:href="@{/admin/getAllUsers/${status}(status=${status}, sortBy='login')}">Identifiant</a></th>
+                    <th><a th:href="@{/admin/getAllUsers/${status}(status=${status}, sortBy='gender')}">Genre</a></th>
+                    <th><a th:href="@{/admin/getAllUsers/${status}(status=${status}, sortBy='admin')}">Admin</a></th>
+                    <th><a th:href="@{/admin/getAllUsers/${status}(status=${status}, sortBy='enabled')}">État</a></th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${pagedUsers}">
+                    <td th:text="${user.id}" class="fw-bold"></td>
+                    <td th:text="${user.lastName}" class="text-primary"></td>
+                    <td th:text="${user.firstName}" class="text-primary"></td>
+                    <td th:text="${user.login}" class="text-info"></td>
+                    <td th:text="${user.gender}" class="text-secondary"></td>
+                    <td th:text="${user.admin == 1 ? 'Oui' : 'Non'}" class="text-muted"></td>
+                    <td th:text="${user.enabled ? 'Activé' : 'Désactivé'}" class="text-muted"></td>
+                    <td>
+                        <a th:href="@{/admin/editUser/{id}(id=${user.id})}" class="btn btn-sm btn-primary me-2">Modifier</a>
+                        <form th:action="@{/admin/deleteUser/{id}(id=${user.id})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">Supprimer</button>
+                        </form>
+                        <form th:action="@{/admin/enableDisableUser/{id}(id=${user.id})}" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-secondary"
+                                    th:class="${user.enabled ? 'btn-danger' : 'btn-success'}"
+                                    th:text="${user.enabled ? 'Désactiver' : 'Activer'}"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir basculer le statut de l\'utilisateur?')"></button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                <!-- Previous Page -->
+                <li th:if="${pagedUsers.hasPrevious()}">
+                    <a th:href="@{${url}(page=${pagedUsers.previousPageable().pageNumber}, size=${pagedUsers.previousPageable().pageSize})}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                <li th:unless="${pagedUsers.hasPrevious()}" class="disabled">
+                    <span aria-hidden="true">&laquo;</span>
+                </li>
+
+                <!-- Page Numbers -->
+                <li th:each="page : ${#numbers.sequence(0, pagedUsers.totalPages - 1)}" th:class="${page == pagedUsers.number ? 'active' : ''}">
+                    <a th:href="@{${url}(page=${page}, size=${pagedUsers.size})}" th:text="${page + 1}"></a>
+                </li>
+
+                <!-- Next Page -->
+                <li th:if="${pagedUsers.hasNext()}">
+                    <a th:href="@{${url}(page=${pagedUsers.nextPageable().pageNumber}, size=${pagedUsers.nextPageable().pageSize})}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+                <li th:unless="${pagedUsers.hasNext()}" class="disabled">
+                    <span aria-hidden="true">&raquo;</span>
+                </li>
+            </ul>
+
+        </nav>
+        <form th:action="@{/admin/getAllUsers/{status}(status=${status})}" method="get" class="my-3">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search..." name="searchQuery" th:value="${searchQuery}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+        <a th:href="@{/admin/createUser}" class="btn btn-success">Ajouter un utilisateur</a>
+    </div>
+</div>
+
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.1.1/js/bootstrap.min.js"></script>
+</body>
+</html>

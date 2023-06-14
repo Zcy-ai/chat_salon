@@ -4,6 +4,9 @@ import com.sr03.chat_salon.dao.UserDao;
 import com.sr03.chat_salon.model.User;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
@@ -39,7 +42,14 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("login", login);
         query.executeUpdate();
     }
-
+    @Override
+    @Transactional
+    public void enableDisableById(int id) {
+        String hql = "update User u set u.enabled = case when u.enabled = true then false else true end where u.id = :id";
+        Query query = sessionFactory.getCurrentSession().createQuery(hql);
+        query.setParameter("id", id);
+        query.executeUpdate();
+    }
     @Override
     @Transactional
     public void updateUser(User user) {
@@ -72,5 +82,64 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("user_login", login);
         return query.uniqueResult();
     }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<User> searchUsers(String searchQuery, Pageable pageable, String sortBy) {
+        Session session = sessionFactory.getCurrentSession();
+
+        // 构建查询语句
+        String hql = "FROM User u WHERE u.firstName LIKE :searchQuery OR u.lastName LIKE :searchQuery ORDER BY u." + sortBy;
+
+        // 创建查询对象
+        Query<User> query = session.createQuery(hql, User.class);
+
+        // 设置参数
+        query.setParameter("searchQuery", "%" + searchQuery + "%");
+
+        // 设置分页信息
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+
+        // 执行查询并返回结果
+        List<User> userList = query.getResultList();
+        long total = getTotalUserCount(session, hql, searchQuery); // 获取总记录数
+
+        return new PageImpl<>(userList, pageable, total);
+    }
+
+    private long getTotalUserCount(Session session, String hql, String searchQuery) {
+        Query<Long> countQuery = session.createQuery("SELECT COUNT(*) " + hql, Long.class);
+        countQuery.setParameter("searchQuery", "%" + searchQuery + "%");
+        return countQuery.getSingleResult();
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<User> findAll(Pageable pageable, String sortBy) {
+        Session session = sessionFactory.getCurrentSession();
+        String hql = "FROM User u ORDER BY u." + sortBy;
+        Query<User> query = session.createQuery(hql, User.class);
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+        List<User> userList = query.getResultList();
+        long total = getTotalUserCount(session, hql);
+        return new PageImpl<>(userList, pageable, total);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<User> findDisabledUsers(Pageable pageable, String sortBy) {
+        Session session = sessionFactory.getCurrentSession();
+        String hql = "FROM User u where u.enabled = false ORDER BY u." + sortBy;
+        Query<User> query = session.createQuery(hql, User.class);
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+        List<User> userList = query.getResultList();
+        long total = getTotalUserCount(session, hql);
+        return new PageImpl<>(userList, pageable, total);
+    };
+    private long getTotalUserCount(Session session, String hql) {
+        Query<Long> countQuery = session.createQuery("SELECT COUNT(*) " + hql, Long.class);
+        return countQuery.getSingleResult();
+    }
+
 
 }

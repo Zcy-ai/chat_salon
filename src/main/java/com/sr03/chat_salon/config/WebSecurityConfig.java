@@ -41,13 +41,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/contact/**").permitAll()
             .antMatchers("/login").permitAll()
             .antMatchers("/register").permitAll()
-            .antMatchers("/deleteUser").hasAnyRole("ADMIN")
+//            .antMatchers("/deleteUser").hasAnyRole("ADMIN")
             .antMatchers("/create_chatroom/**").permitAll()
             .antMatchers("/delete_chatroom/**").permitAll()
             .antMatchers("/css/**", "/fonts/**", "/images/**", "/js/**", "/error", "/webjars/**").permitAll()
             .antMatchers("/reset-password*").permitAll()
-            .antMatchers("/admin*").hasAnyRole("ADMIN")
+//            .antMatchers("/admin*").hasAnyRole("ADMIN")
             .antMatchers("/chatRoom").permitAll()
+            .antMatchers("/").permitAll()
+            .antMatchers("/admin/**").permitAll()
+            .antMatchers("/favicon.ico").permitAll()
             .anyRequest().authenticated();
     }
 

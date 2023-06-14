@@ -23,6 +23,8 @@ public class User implements UserDetails {
     private String gender;
     @Column(name="admin", nullable = false)
     private int admin;
+    @Column(name="enabled", nullable = false)
+    private boolean enabled;
     @Id
     @GeneratedValue
     private int id;
@@ -46,6 +48,7 @@ public class User implements UserDetails {
         this.gender = gender;
         this.password = pwd;
         this.admin = admin;
+        this.enabled = true;
     }
 
     public int getId() {
@@ -111,7 +114,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
     public int getAdmin() {

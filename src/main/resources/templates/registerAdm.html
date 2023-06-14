@@ -11,7 +11,7 @@
 <div class="container">
   <h1 class="text-center my-5">Registration</h1>
   <!-- 表单 -->
-  <form action="#" th:action="@{/register}" th:object="${user}" method="post" id = "register">
+  <form action="#" th:action="@{/admin/register}" th:object="${user}" method="post" id = "register">
     <div class="form-group">
       <label for="firstName">First Name:</label>
       <input type="text" class="form-control" id="firstName" name="firstName" field="*{firstName}" placeholder="firstName" required>
