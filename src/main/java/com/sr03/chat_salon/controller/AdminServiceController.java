@@ -20,8 +20,8 @@ public class AdminServiceController {
 
     @PostMapping(value = "/login")
     public String adminLoginHandler(
-            @RequestParam("login") String login,
-            @RequestParam("password") String pwd) {
+        @RequestParam("login") String login,
+        @RequestParam("password") String pwd) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
             // TODO 换成logback记录
@@ -30,7 +30,10 @@ public class AdminServiceController {
         }
         // 验证密码，验证成功跳转
         if (userService.authenticate(login, pwd)) {
-            return "redirect:/admin/getAllUsers/all";
+            if (user.getAdmin()){
+                return "redirect:/admin/getAllUsers/all";
+            }
+            System.out.println("Permission denied :(");
         }
         return "index";
     }
@@ -66,12 +69,18 @@ public class AdminServiceController {
         return "admin";
     }
 
-    @GetMapping(value = "/editUser")
-    public String editUserHandler() {
-        // TODO 编辑用户实现
-        return null;
+    @GetMapping(value = "/editUser/{id}")
+    public String editUserHandler(@PathVariable("id") int id, Model model) {
+        User user = userService.findUserById(id);
+        model.addAttribute("user", user);
+        return "editAdm";
     }
 
+    @PostMapping(value = "/modifyUser")
+    public String modifyUserHandler(@ModelAttribute User user) {
+        userService.modifyUser(user);
+        return "redirect:/admin/getAllUsers/all";
+    }
     @PostMapping(value = "/deleteUser/{id}")
     public String deleteUserHandler(@PathVariable("id") int id) {
         userService.deleteUserById(id);
@@ -91,7 +100,7 @@ public class AdminServiceController {
             @RequestParam(value="lastName") String last_name,
             @RequestParam(value="firstName") String first_name,
             @RequestParam(value="login") String login,
-            @RequestParam(value="admin") int admin,
+            @RequestParam(value="admin") boolean admin,
             @RequestParam(value="gender") String gender,
             @RequestParam(value="password") String password,
             Model model) {

@@ -73,12 +73,17 @@ function Login() {
                     console.log(state);
                     navigate("/chatRoom", {state});
                 } else {
-                    setError('Authentication failed');
+                    // Handle other error cases
+                    setError('An error occurred during login. Please try again.');
                 }
             })
-            .catch((error) => {
-                console.log(error);
-                setError('Authentication failed');
+            .catch((e) => {
+                if (e.response.status === 404) {
+                    setError(e.response.data.error);
+                }else{
+                    console.log("Error",e);
+                    setError('Authentication failed')
+                }
             });
     };
     function Copyright(props) {
@@ -86,7 +91,7 @@ function Login() {
             <Typography variant="body2" color="text.secondary" align="center" {...props}>
                 {'Copyright © '}
                 <Link color="inherit" href="https://mui.com/">
-                    Your Website
+                    Chat Room
                 </Link>{' '}
                 {new Date().getFullYear()}
                 {'.'}
@@ -136,10 +141,10 @@ function Login() {
                             required
                             onChange={handlePasswordChange}
                         />
-                        <FormControlLabel
-                            control={<Checkbox value="remember" color="primary" />}
-                            label="Remember me"
-                        />
+                        {/*<FormControlLabel*/}
+                        {/*    control={<Checkbox value="remember" color="primary" />}*/}
+                        {/*    label="Remember me"*/}
+                        {/*/>*/}
                         <Button
                             type="submit"
                             fullWidth
@@ -148,12 +153,17 @@ function Login() {
                         >
                             Sign In
                         </Button>
-                        <Grid container>
-                            <Grid item xs>
-                                <Link href="#" variant="body2">
-                                    Forgot password?
-                                </Link>
-                            </Grid>
+                        {error && (
+                            <Typography component="p" variant="body2" color="error" align="center">
+                                {error}
+                            </Typography>
+                        )}
+                        <Grid container justifyContent="center">
+                            {/*<Grid item xs>*/}
+                            {/*    <Link href="#" variant="body2">*/}
+                            {/*        Forgot password?*/}
+                            {/*    </Link>*/}
+                            {/*</Grid>*/}
                             <Grid item>
                                 <Link href="/register" variant="body2">
                                     {"Don't have an account? Sign Up"}

@@ -22,9 +22,11 @@ public class User implements UserDetails {
     @Column(name="gender", nullable = false, length = 6)
     private String gender;
     @Column(name="admin", nullable = false)
-    private int admin;
+    private boolean admin;
     @Column(name="enabled", nullable = false)
     private boolean enabled;
+    @Column(name="loginAttempts", nullable = false)
+    private int loginAttempts;
     @Id
     @GeneratedValue
     private int id;
@@ -41,7 +43,7 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String lastName, String firstName, String login, int admin, String gender, String pwd) {
+    public User(String lastName, String firstName, String login, boolean admin, String gender, String pwd) {
         this.lastName = lastName;
         this.firstName = firstName;
         this.login = login;
@@ -49,6 +51,7 @@ public class User implements UserDetails {
         this.password = pwd;
         this.admin = admin;
         this.enabled = true;
+        this.loginAttempts = 0;
     }
 
     public int getId() {
@@ -76,10 +79,18 @@ public class User implements UserDetails {
         return login;
     }
 
+    public int getLoginAttempts() {
+        return loginAttempts;
+    }
+
+    public void setLoginAttempts(int loginAttempts) {
+        this.loginAttempts = loginAttempts;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        if (this.getAdmin() == 1) {
+        if (this.getAdmin()) {
             authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         } else {
             authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
@@ -117,7 +128,11 @@ public class User implements UserDetails {
         return enabled;
     }
 
-    public int getAdmin() {
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean getAdmin() {
         return admin;
     }
 
@@ -125,8 +140,8 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public void setAdmin(int admin) {
-        this.admin = admin;
+    public void setAdmin(boolean admin) {
+        this.admin=admin;
     }
 
     public String getLastName() {
@@ -197,9 +212,17 @@ public class User implements UserDetails {
 
     @Override
     public String toString() {
-        return "User{" + "lastName=" + lastName + ", firstName=" + firstName + ""
-                + ", login=" + login  + ", gender=" + gender + ","
-                + " pwd=" + password + '}';
+        return "User{" +
+                "lastName='" + lastName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                ", gender='" + gender + '\'' +
+                ", admin=" + admin +
+                ", enabled=" + enabled +
+                ", id=" + id +
+                ", chatRooms=" + chatRooms +
+                '}';
     }
 
 }

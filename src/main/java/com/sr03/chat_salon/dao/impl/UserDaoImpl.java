@@ -3,6 +3,7 @@ package com.sr03.chat_salon.dao.impl;
 import com.sr03.chat_salon.dao.UserDao;
 import com.sr03.chat_salon.model.User;
 import org.hibernate.SessionFactory;
+import org.hibernate.type.BooleanType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -52,10 +53,28 @@ public class UserDaoImpl implements UserDao {
     }
     @Override
     @Transactional
+    public void modifyUser(User user) {
+        Session session = sessionFactory.getCurrentSession();
+        System.out.println(user);
+        String hql = "UPDATE User u SET u.firstName = :firstName, u.lastName = :lastName, u.gender = :gender, u.password = :pwd, u.admin = :admin, u.enabled = :enabled WHERE u.login = :login";
+        session.createQuery(hql)
+                .setParameter("firstName", user.getFirstName())
+                .setParameter("lastName", user.getLastName())
+                .setParameter("gender", user.getGender())
+                .setParameter("pwd", user.getPassword())
+                .setParameter("enabled", user.isEnabled(), BooleanType.INSTANCE)
+                .setParameter("admin", user.getAdmin(), BooleanType.INSTANCE)
+                .setParameter("login", user.getLogin())
+                .executeUpdate();
+    }
+    @Override
+    @Transactional
     public void updateUser(User user) {
         Session session = sessionFactory.getCurrentSession();
         session.update(user);
     }
+
+
     @Override
     @Transactional(readOnly = true)
     public List<User> findAllUser() {
@@ -84,26 +103,23 @@ public class UserDaoImpl implements UserDao {
     }
     @Override
     @Transactional(readOnly = true)
+    public User findUserById(int id) {
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<User> query = session.createQuery("from User where id = :user_id", User.class);
+        query.setParameter("user_id", id);
+        return query.uniqueResult();
+    }
+    @Override
+    @Transactional(readOnly = true)
     public Page<User> searchUsers(String searchQuery, Pageable pageable, String sortBy) {
         Session session = sessionFactory.getCurrentSession();
-
-        // 构建查询语句
         String hql = "FROM User u WHERE u.firstName LIKE :searchQuery OR u.lastName LIKE :searchQuery ORDER BY u." + sortBy;
-
-        // 创建查询对象
         Query<User> query = session.createQuery(hql, User.class);
-
-        // 设置参数
         query.setParameter("searchQuery", "%" + searchQuery + "%");
-
-        // 设置分页信息
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
-
-        // 执行查询并返回结果
         List<User> userList = query.getResultList();
         long total = getTotalUserCount(session, hql, searchQuery); // 获取总记录数
-
         return new PageImpl<>(userList, pageable, total);
     }
 

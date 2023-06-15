@@ -6,6 +6,7 @@ import com.sr03.chat_salon.service.ChatRoomService;
 import com.sr03.chat_salon.service.UserService;
 import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,7 +40,7 @@ public class UserServiceController {
             @RequestParam(value="lastName") String last_name,
             @RequestParam(value="firstName") String first_name,
             @RequestParam(value="login") String login,
-            @RequestParam(value="admin") int admin,
+            @RequestParam(value="admin") boolean admin,
             @RequestParam(value="gender") String gender,
             @RequestParam(value="password") String password,
             Model model) {
@@ -66,27 +67,56 @@ public class UserServiceController {
             HttpServletRequest request) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
-            logger.info("User "+login+" Not Found!");
-//            System.out.println("User Login Not Found :(");
-            return ResponseEntity.notFound().build();
+            String message = "User " + login + " not found!";
+            logger.info(message);
+            UserLoginResp errorResponse = new UserLoginResp(message);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+        if (!user.isEnabled()) {
+            String message = "User " + login + " is not enabled!";
+            logger.info(message);
+            UserLoginResp errorResponse = new UserLoginResp(message);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+        int maxLoginAttempts = 3; // Change this value as needed
+        int loginAttempts = user.getLoginAttempts();
+        if (loginAttempts >= maxLoginAttempts) {
+            user.setLoginAttempts(0);
+            user.setEnabled(false);
+            userService.updateUser(user);
+            String message = "User " + login + " has exceeded maximum login attempts. User is disabled.";
+            logger.info(message);
+            UserLoginResp errorResponse = new UserLoginResp(message);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
         String jwt = jwtTokenProvider.generateToken(login);
         System.out.println(jwt);
         // 验证密码，验证成功跳转
         if (userService.authenticate(login, pwd)){
+            // Reset login attempts on successful login
+            user.setLoginAttempts(0);
+            userService.updateUser(user);
+
             request.getSession().setAttribute("user", user.getLogin());
             String token = jwtTokenProvider.generateToken(login);
             logger.info("User "+login+" connected");
             // TODO 存储在线用户到redis
             List<User> user_list = null;
-            if (user.getAdmin() == 1) {
+            if (user.getAdmin()) {
                 user_list = userService.getAllUsers();
             }
             List<ChatRoom> chatRoomList = chatRoomService.findChatRoomByUser(user.getId());
             UserLoginResp resp = new UserLoginResp(user.getFirstName(),user.getLastName(), user_list, chatRoomList, token);
             return ResponseEntity.ok(resp);
+        }else {
+            // Increment login attempts on unsuccessful login
+            user.setLoginAttempts(loginAttempts + 1);
+            userService.updateUser(user);
+            String message = "Invalid password for user " + login + ". Login attempts: " + (loginAttempts + 1);
+            logger.info(message);
+            UserLoginResp errorResponse = new UserLoginResp(message);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
-        return ResponseEntity.notFound().build();
     }
 //
 //    @RequestMapping (value = "/getAllUsers")

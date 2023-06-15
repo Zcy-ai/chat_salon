@@ -11,6 +11,10 @@ public class UserLoginResp {
     List<User> userList;
     List<ChatRoom> chatRoomList;
     String token;
+    String error;
+    public UserLoginResp(String error){
+        this.error = error;
+    }
     public UserLoginResp(String firstName, String lastName, List<User> userList, List<ChatRoom> chatRoomList, String token) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -58,5 +62,13 @@ public class UserLoginResp {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }

@@ -49,7 +49,12 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findUserByLogin(login);
         return user;
     }
-
+    @Override
+    @Transactional(readOnly = true)
+    public User findUserById(int id) {
+        User user = userDao.findUserById(id);
+        return user;
+    }
     @Override
     public List<User> findUserByChatRoom(int chatRoomID) {
         return userDao.findUserByChatRoom(chatRoomID);
@@ -98,4 +103,10 @@ public class UserServiceImpl implements UserService {
     public Page<User> getDisabledUsers(Pageable pageable, String sortBy) {
         return userDao.findDisabledUsers(pageable, sortBy);
     };
+    public void updateUser(User user) {
+        userDao.updateUser(user);
+    }
+    public void modifyUser(User user) {
+        userDao.modifyUser(user);
+    }
 }

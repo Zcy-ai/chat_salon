@@ -14,9 +14,11 @@ public interface UserDao {
     void deleteUserByLogin(String login);
     // 改
     void updateUser(User user);
+    void modifyUser(User user);
     // 查
     void enableDisableById(int id);
     User findUserByLogin(String login);
+    User findUserById(int id);
     List<User> findAllUser();
     List<User> findUserByChatRoom(int chatRoomID);
     Page<User> searchUsers(String searchQuery, Pageable pageable, String sortBy);

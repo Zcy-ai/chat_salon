@@ -9,7 +9,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [gender, setGender] = useState('');
-    const [admin, setAdmin] = useState(0);
+    const [admin, setAdmin] = useState(false);
 
     const [fnError, setFnError] = useState('');
     const [lnError, setLnError] = useState('');

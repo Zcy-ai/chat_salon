@@ -32,7 +32,7 @@ class ChatRoomServiceTest {
     }
     @Test
     public void addChatRoom() {
-        ChatRoom chatRoom = new ChatRoom("SR03");
+        //ChatRoom chatRoom = new ChatRoom("SR03");
         chatRoomService.findAllChatRoom();
     }
     @Test

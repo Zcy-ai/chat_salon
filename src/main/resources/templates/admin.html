@@ -54,7 +54,7 @@
                     <td th:text="${user.firstName}" class="text-primary"></td>
                     <td th:text="${user.login}" class="text-info"></td>
                     <td th:text="${user.gender}" class="text-secondary"></td>
-                    <td th:text="${user.admin == 1 ? 'Oui' : 'Non'}" class="text-muted"></td>
+                    <td th:text="${user.admin ? 'Oui' : 'Non'}" class="text-muted"></td>
                     <td th:text="${user.enabled ? 'Activé' : 'Désactivé'}" class="text-muted"></td>
                     <td>
                         <a th:href="@{/admin/editUser/{id}(id=${user.id})}" class="btn btn-sm btn-primary me-2">Modifier</a>
