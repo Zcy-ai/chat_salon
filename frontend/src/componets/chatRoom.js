@@ -16,19 +16,9 @@ class Invitation {
         this.messageType = messageType;
     }
 }
-class MessageToSend {
-    constructor(chatRoom, sender, firstName, lastName, content) {
+class Message {
+    constructor(chatRoom, sender, firstName, lastName, content, timestamp) {
         this.chatRoom = chatRoom;
-        this.sender = sender;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.content = content;
-    }
-}
-
-class MessageToPrint {
-    constructor(id, sender, firstName, lastName, content, timestamp) {
-        this.id = id;
         this.sender = sender;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -36,6 +26,7 @@ class MessageToPrint {
         this.timestamp = timestamp;
     }
 }
+
 function ChatRoom() {
     const location = useLocation();
     const state = location.state;
@@ -44,7 +35,6 @@ function ChatRoom() {
     let currentLastName = state.lastName; // lastName of user
     const [currentChatRoomIndex, setCurrentChatRoomIndex] = useState(null); // current index of room in chatRoom
     const [currentChatRoomId, setCurrentChatRoomId] = useState(null); // current id of chatRoom at backend
-    // const [currentMessageId, setCurrentMessageId] = useState(0);
     const [newChatName, setNewChatName] = useState('');
     const [isChatNameValid, setIsChatNameValid] = useState(true);
     const [isNewUserLoginValid, setIsNewUserLoginValid] = useState(null);
@@ -111,17 +101,31 @@ function ChatRoom() {
     // 当用户点击切换聊天室时，我们更新currentChatRoomIndex和currentChatRoomId
     const handleChatClick = (roomIndex, roomId) => {
         setIsAddingUser(false);
-        if (currentChatRoomIndex === roomIndex){
-            setCurrentChatRoomIndex(null);
-            setCurrentChatRoomId(null);
-            setMessageList([]);
-            return;
-        }
-        setMessageList([]);
-        setCurrentChatRoomIndex(roomIndex);
-        setCurrentChatRoomId(roomId);
-        console.log(currentChatRoomId);
-        console.log(currentChatRoomIndex);
+        // TODO 向后端请求聊天记录
+        axios.get(`http://localhost:8080/chat_history/${roomId}/${token}`)
+            .then((response) => {
+                // const messageHistory = response.data;
+                const messageHistory = response.data.map(JSON.parse);
+                console.log(messageHistory);
+                setMessageList(messageHistory);
+                setCurrentChatRoomIndex(roomIndex);
+                setCurrentChatRoomId(roomId);
+            })
+            .catch(error => {
+                setMessageList([]);
+                setCurrentChatRoomIndex(roomIndex);
+                setCurrentChatRoomId(roomId);
+            // 如果请求失败，可以在这里处理错误
+                console.error('There has been a problem with your axios operation:', error);
+            });
+        // if (currentChatRoomIndex === roomIndex){
+        //     setCurrentChatRoomIndex(null);
+        //     setCurrentChatRoomId(null);
+        //     setMessageList([]);
+        //     return;
+        // }
+        // console.log(currentChatRoomId);
+        // console.log(currentChatRoomIndex);
     };
     const handleDeleteChat = (roomId) => {
         // axios向后端发送删除chat的请求
@@ -172,13 +176,16 @@ function ChatRoom() {
     // 向后端发送消息
     const sendMessage = () => {
         if (message.trim() !== '') {
+            const currentDate = new Date().toLocaleString(); // 添加日期
+            const formattedMessage = `${currentFirstName} ${currentLastName}: ${message}`
             //发送消息
-            const newMessage = new MessageToSend(
+            const newMessage = new Message (
                 currentChatRoomId,
                 currentLogin,
                 currentFirstName,
                 currentLastName,
-                message
+                formattedMessage,
+                currentDate,
             );
             socket.send(JSON.stringify(newMessage));
             setMessage(''); //发送出消息后清空消息输入框
@@ -213,7 +220,6 @@ function ChatRoom() {
         };
     }
     // 监控currentChatRoomId和currentLogin,当两者发生变化，更新websocket连接
-    let messageCounter = 0;
     useEffect(() => {
         if (currentChatRoomId === null){
             setSocket(null);
@@ -227,22 +233,21 @@ function ChatRoom() {
             };
             newSocket.onmessage = (event) => {
                 const receivedMessage = JSON.parse(event.data);
-                const {sender, firstName, lastName, content} = receivedMessage;
-                const currentDate = new Date().toLocaleString(); // 添加日期
-                const formattedMessage = `${firstName} ${lastName}: ${content}`
-                const newMessage = new MessageToPrint(
-                    messageCounter,// TODO index还是id
+                const {sender, firstName, lastName, content, timestamp} = receivedMessage;
+                // const currentDate = new Date().toLocaleString(); // 添加日期
+                // const formattedMessage = `${firstName} ${lastName}: ${content}`
+                const newMessage = new Message(
+                    currentChatRoomId,
                     sender,
                     firstName,
                     lastName,
-                    formattedMessage,
-                    currentDate,
+                    content,
+                    timestamp,
                 );
                 setMessageList(prevState => {
                     const updatedList = [...prevState, newMessage];
                     return updatedList;
                 });
-                messageCounter++; // 递增计数器变量
             };
             newSocket.onclose = function (event) {
                 console.log("Socket closed");
@@ -416,9 +421,9 @@ function ChatRoom() {
                                     </Typography>
                                 </Grid>
                                 <Grid item sx={{ flexGrow: 1, maxHeight: 'calc(100% - 80px)', overflowY: 'auto', paddingTop: '70px' }}>
-                                    {messageList?.map((message) => (
+                                    {messageList?.map((message, index) => (
                                         <Box
-                                            key={message.id}
+                                            key={index}
                                             sx={{
                                                 display: 'flex',
                                                 justifyContent: message.firstName + ' ' + message.lastName === `${currentFirstName} ${currentLastName}` ? 'flex-end' : 'flex-start',

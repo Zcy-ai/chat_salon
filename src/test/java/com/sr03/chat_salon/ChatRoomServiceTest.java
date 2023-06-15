@@ -30,11 +30,19 @@ class ChatRoomServiceTest {
     @Test
     void contextLoads() {
     }
+<<<<<<< HEAD
     @Test
     public void addChatRoom() {
         //ChatRoom chatRoom = new ChatRoom("SR03");
         chatRoomService.findAllChatRoom();
     }
+=======
+//    @Test
+//    public void addChatRoom() {
+//        ChatRoom chatRoom = new ChatRoom("SR03");
+//        chatRoomService.findAllChatRoom();
+//    }
+>>>>>>> 3b6e61c6902d31481074f6f0b89c8efad4d50919
     @Test
     public void deleteUser(){
         userService.deleteUserById(32);

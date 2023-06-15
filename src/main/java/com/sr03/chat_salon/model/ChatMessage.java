@@ -3,20 +3,20 @@ package com.sr03.chat_salon.model;
 
 public class ChatMessage {
     //    private MessageType type;
-    private Integer id;
     private String sender;
     private String firstName;
     private String lastName;
     private Integer chatRoom;
     private String content;
+    private String timestamp;
 
-    public ChatMessage(Integer id, String sender, String firstName, String lastName, Integer chatRoom, String content) {
-        this.id = id;
+    public ChatMessage(String sender, String firstName, String lastName, Integer chatRoom, String content, String timestamp) {
         this.sender = sender;
         this.firstName = firstName;
         this.lastName = lastName;
         this.chatRoom = chatRoom;
         this.content = content;
+        this.timestamp = timestamp;
     }
 //    public enum MessageType {
 //        CHAT,
@@ -31,9 +31,9 @@ public class ChatMessage {
 //    public void setType(MessageType type) {
 //        this.type = type;
 //    }
-    public Integer getId() {return id;}
-
-    public void setId(Integer id) {this.id = id;}
+//    public Integer getId() {return id;}
+//
+//    public void setId(Integer id) {this.id = id;}
     public String getFirstName() {
         return firstName;
     }
@@ -71,6 +71,18 @@ public class ChatMessage {
 
     public void setChatRoom(int chatRoom) {
         this.chatRoom = chatRoom;
+    }
+
+    public void setChatRoom(Integer chatRoom) {
+        this.chatRoom = chatRoom;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     //default constructor

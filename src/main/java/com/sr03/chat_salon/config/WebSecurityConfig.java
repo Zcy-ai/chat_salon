@@ -39,6 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers("/chat/**").permitAll() // Autoriser les requêtes WebSocket
             .antMatchers("/contact/**").permitAll()
+            .antMatchers("/chat_history/**").permitAll()
             .antMatchers("/login").permitAll()
             .antMatchers("/register").permitAll()
 //            .antMatchers("/deleteUser").hasAnyRole("ADMIN")
