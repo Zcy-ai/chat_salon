@@ -32,6 +32,11 @@ public class ChatHistoryController {
 //        String login = jwtTokenProvider.getUserLoginFromJWT(token);
         Set<String> chatHistory = chatHistoryService.getChatHistoryByChatID(chatRoomID);
         System.out.println(chatHistory);
-        return ResponseEntity.ok(chatHistory);
+        if (chatHistory != null) {
+            return ResponseEntity.ok(chatHistory);
+        } else {
+            System.out.println("获取历史消息失败");
+            return ResponseEntity.notFound().build();
+        }
     }
 }

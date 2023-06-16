@@ -6,6 +6,7 @@ import { Avatar, Button, Container, Grid, IconButton, List, ListItem, ListSubhea
 import { Send as SendIcon, Add as AddIcon , Delete as DeleteIcon} from '@mui/icons-material';
 import SpeakerNotesIcon from '@mui/icons-material/SpeakerNotes';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 
 class Invitation {
@@ -48,7 +49,25 @@ function ChatRoom() {
     const [myInvitation, setMyInvitation] = useState(null);
     const [invitationErr, setInvitationErr] = useState(null);
     const [token, setToken] = useState(state.token);
+    const [height, setHeight] = useState('60px'); // 初始化高度为60px
 
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 1045) {
+                setHeight(window.innerWidth < 700 ? '150px' : '105px');
+            } else {
+                setHeight('60px');
+            }
+        };
+
+        // 添加窗口大小改变的事件监听器
+        window.addEventListener('resize', handleResize);
+
+        // 组件卸载时移除事件监听器
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, []); // 空依赖数组表示只在组件挂载和卸载时执行一次
     const logout = () => {
         localStorage.removeItem('token');
         if (socket) {
@@ -115,6 +134,12 @@ function ChatRoom() {
     // 当用户点击切换聊天室时，我们更新currentChatRoomIndex和currentChatRoomId
     const handleChatClick = (roomIndex, roomId) => {
         setIsAddingUser(false);
+        if (currentChatRoomIndex === roomIndex){
+            setCurrentChatRoomIndex(null);
+            setCurrentChatRoomId(null);
+            setMessageList([]);
+            return;
+        }
         // TODO 向后端请求聊天记录
         axios.get(`http://localhost:8080/chat_history/${roomId}/${token}`)
             .then((response) => {
@@ -132,12 +157,6 @@ function ChatRoom() {
             // 如果请求失败，可以在这里处理错误
                 console.error('There has been a problem with your axios operation:', error);
             });
-        // if (currentChatRoomIndex === roomIndex){
-        //     setCurrentChatRoomIndex(null);
-        //     setCurrentChatRoomId(null);
-        //     setMessageList([]);
-        //     return;
-        // }
         // console.log(currentChatRoomId);
         // console.log(currentChatRoomIndex);
     };
@@ -321,9 +340,9 @@ function ChatRoom() {
     return (
         <Container maxWidth="lg" sx={{ marginTop: 4, height: 'calc(100vh - 64px)' }}>
             <Grid container spacing={2} sx={{ height: '100%' }}>
-                <Grid item xs={4} sx={{ height: '100%' }}>
+                <Grid item xs={4} sx={{ height: '100%'}}>
                     <Paper elevation={3} sx={{ height: '100%'}}>
-                        <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2, position: 'relative'  }}>
+                        <Grid container direction="column" justifyContent="space-between" sx={{ height: '100%', padding: 2, position: 'relative' }}>
                             <Grid item sx={{ position: 'absolute', top: 0, left: 0, right: 0, margin: '10px' }}>
                                 <Grid container alignItems="center" spacing={2}>
                                     <Grid item>
@@ -333,14 +352,19 @@ function ChatRoom() {
                                         <Typography variant="h6">{currentFirstName} {currentLastName}</Typography>
                                     </Grid>
                                     <Grid item>
-                                        <Button variant="contained" color="primary" onClick={logout}>
-                                            Logout
+                                        <Button
+                                            variant="contained"
+                                            color="secondary"
+                                            startIcon={<ExitToAppIcon />}
+                                            onClick={logout}
+                                        >
+                                        logout
                                         </Button>
                                     </Grid>
                                 </Grid>
                             </Grid>
                             <Grid item sx={{ flexGrow: 1 }}>
-                                <div style={{ height: '60px' }}></div>
+                                <div style={{ height }}></div>
                                 <List component="nav" sx={{ flexGrow: 1, maxHeight: 'calc(100% - 160px)', overflowY: 'auto' }}>
                                     <ListSubheader sx={{ backgroundColor: '#f3e5f5', borderBottom: '1px solid #000' }}>Chef</ListSubheader>
                                     {chatRoom?.map((chat, index) => {
