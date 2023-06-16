@@ -89,8 +89,6 @@ public class UserServiceController {
             UserLoginResp errorResponse = new UserLoginResp(message);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
-        String jwt = jwtTokenProvider.generateToken(login);
-        System.out.println(jwt);
         // 验证密码，验证成功跳转
         if (userService.authenticate(login, pwd)){
             // Reset login attempts on successful login
