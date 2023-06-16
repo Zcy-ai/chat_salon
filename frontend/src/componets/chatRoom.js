@@ -48,6 +48,17 @@ function ChatRoom() {
     const [myInvitation, setMyInvitation] = useState(null);
     const [invitationErr, setInvitationErr] = useState(null);
     const [token, setToken] = useState(state.token);
+
+    const logout = () => {
+        localStorage.removeItem('token');
+        if (socket) {
+            socket.close();
+        }
+        if (socketServ) {
+            socketServ.close();
+        }
+        window.location.replace('/login');
+    }
     const handleAddUserClick = () => {
         if (isAddingUser){
             setIsAddingUser(false);
@@ -320,6 +331,11 @@ function ChatRoom() {
                                     </Grid>
                                     <Grid item>
                                         <Typography variant="h6">{currentFirstName} {currentLastName}</Typography>
+                                    </Grid>
+                                    <Grid item>
+                                        <Button variant="contained" color="primary" onClick={logout}>
+                                            Logout
+                                        </Button>
                                     </Grid>
                                 </Grid>
                             </Grid>
