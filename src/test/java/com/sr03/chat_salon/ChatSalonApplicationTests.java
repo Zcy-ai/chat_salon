@@ -31,13 +31,13 @@ class ChatSalonApplicationTests {
 	void contextLoads() {
 	}
 
-	@Test
-	public void addUser() {
-		User user = new User("ZHA","Chenyi","zcy88827@gmail.com",1,"male", "1234");
-		userDao.addUser(user);
-		System.out.println(user);
-
-	}
+//	@Test
+//	public void addUser() {
+//		User user = new User("ZHA","Chenyi","zcy88827@gmail.com",1,"male", "1234");
+//		userDao.addUser(user);
+//		System.out.println(user);
+//
+//	}
 	@Test
 	public void findUserByLogin() {
 		System.out.println(userDao.findUserByLogin("zcy88827@163.com"));

@@ -10,4 +10,5 @@ public interface ContactDao {
     List<Contact> findAllContact();
     List<Contact> findContactByUser(int userID);
     List<Contact> findContactByChatRoom(int chatRoomID);
+    Contact findContactByChatRoomLogin(int chatRoomID, String login);
 }

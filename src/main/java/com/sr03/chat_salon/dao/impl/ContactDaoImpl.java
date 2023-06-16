@@ -1,6 +1,7 @@
 package com.sr03.chat_salon.dao.impl;
 
 import com.sr03.chat_salon.dao.ContactDao;
+import com.sr03.chat_salon.model.ChatRoom;
 import com.sr03.chat_salon.model.Contact;
 import com.sr03.chat_salon.model.User;
 import org.hibernate.Session;
@@ -58,5 +59,18 @@ public class ContactDaoImpl implements ContactDao {
         Query<Contact> query = session.createQuery("from Contact where chatRoom = :chatRoomID", Contact.class);
         query.setParameter("chatRoomID", chatRoomID);
         return query.list();
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Contact findContactByChatRoomLogin(int chatRoomID, String login){
+        Session session = this.sessionFactory.getCurrentSession();
+        Query<Contact> query = session.createQuery("from Contact where chatRoom.id = :chatRoomID and user.login = :login", Contact.class);
+        query.setParameter("chatRoomID", chatRoomID);
+        query.setParameter("login", login);
+        List<Contact> contacts = query.getResultList();
+        if (!contacts.isEmpty()) {
+            return contacts.get(0);
+        }
+        return null;
     }
 }

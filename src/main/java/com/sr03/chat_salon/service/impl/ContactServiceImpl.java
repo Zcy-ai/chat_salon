@@ -34,4 +34,7 @@ public class ContactServiceImpl implements ContactService {
     public List<Contact> findContactByUser(int userID) {
         return contactDao.findContactByUser(userID);
     }
+
+    @Override
+    public Contact findContactByChatRoomLogin(int chatRoomID, String login){return contactDao.findContactByChatRoomLogin(chatRoomID, login);}
 }

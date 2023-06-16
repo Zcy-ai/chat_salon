@@ -11,5 +11,5 @@ public interface ContactService {
     List<Contact> findAllContact();
     List<Contact> findContactByChatRoom(int chatRoomID);
     List<Contact> findContactByUser(int userID);
-//    Contact findContactByUserChatRoom(int userID, int chatRoomID);
+    Contact findContactByChatRoomLogin(int chatRoomID, String login);
 }

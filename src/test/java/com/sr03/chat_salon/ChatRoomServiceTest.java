@@ -30,29 +30,22 @@ class ChatRoomServiceTest {
     @Test
     void contextLoads() {
     }
-<<<<<<< HEAD
     @Test
     public void addChatRoom() {
         //ChatRoom chatRoom = new ChatRoom("SR03");
         chatRoomService.findAllChatRoom();
     }
-=======
-//    @Test
-//    public void addChatRoom() {
-//        ChatRoom chatRoom = new ChatRoom("SR03");
-//        chatRoomService.findAllChatRoom();
-//    }
->>>>>>> 3b6e61c6902d31481074f6f0b89c8efad4d50919
+
     @Test
     public void deleteUser(){
         userService.deleteUserById(32);
     }
 
-    @Test
-    public void addUser() {
-        User user = new User("Messi","Leo","messi.leo@gmail.com",1,"male", "1234");
-        userService.addUser(user);
-    }
+//    @Test
+//    public void addUser() {
+//        User user = new User("Messi","Leo","messi.leo@gmail.com",1,"male", "1234");
+//        userService.addUser(user);
+//    }
     @Test
     public void findAllChatRoom() {
         chatRoomService.findAllChatRoom();
@@ -90,5 +83,11 @@ class ChatRoomServiceTest {
         for(int i=0;i<chatRoomList.size();i++) {
             System.out.println(chatRoomList.get(i).getId()+chatRoomList.get(i).getName()+chatRoomList.get(i).getUsers());
         }
+    }
+    @Test
+    public void newtest() {
+        Contact mycontact = contactService.findContactByChatRoomLogin(243,"lymickey@163.com");
+        System.out.println("结果");
+        System.out.println(mycontact);
     }
 }

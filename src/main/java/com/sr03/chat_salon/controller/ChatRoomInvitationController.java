@@ -18,8 +18,10 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.List;
 
 @CrossOrigin(origins = "*")
 @Component
@@ -59,6 +61,20 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
             Contact contact = new Contact(user, chatRoom);
             contactService.addContact(contact);
             log.info("Add User"+user+" to the chatRoom "+chatRoom);
+            sendMessage(inviteMessage);
+            return;
+        }
+        Contact contact = contactService.findContactByChatRoomLogin(inviteMessage.getChatRoomID(),inviteMessage.getReceiver());
+        if (contact != null) { // 邀请的人已经在群里了
+            String err = "Inviter is already in the chatRoom";
+            log.info(err);
+            inviteMessage.setReceiver(inviteMessage.getInviter()); //把错误传给自己
+            inviteMessage.setMessageType(err);
+        }else if(userService.findUserByLogin(inviteMessage.getReceiver()) == null) {
+            String err = "Inviter doesn't exist";
+            log.info(err);
+            inviteMessage.setReceiver(inviteMessage.getInviter());
+            inviteMessage.setMessageType(err);
         }
         sendMessage(inviteMessage);
     }

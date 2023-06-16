@@ -7,6 +7,7 @@ import { Send as SendIcon, Add as AddIcon , Delete as DeleteIcon} from '@mui/ico
 import SpeakerNotesIcon from '@mui/icons-material/SpeakerNotes';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 
+
 class Invitation {
     constructor(inviter, receiver, chatRoomID, chatRoomName, messageType) {
         this.inviter = inviter;
@@ -37,7 +38,6 @@ function ChatRoom() {
     const [currentChatRoomId, setCurrentChatRoomId] = useState(null); // current id of chatRoom at backend
     const [newChatName, setNewChatName] = useState('');
     const [isChatNameValid, setIsChatNameValid] = useState(true);
-    const [isNewUserLoginValid, setIsNewUserLoginValid] = useState(null);
     const [message, setMessage] = useState(''); //发送消息的输入框
     const [socket, setSocket] = useState(null); //websocket connecté pour l'instant
     const [socketServ, setSocketServ] = useState(null); //websocket to server
@@ -46,6 +46,7 @@ function ChatRoom() {
     const [isAddingUser, setIsAddingUser] = useState(false);
     const [newUserLogin, setNewUserLogin] = useState('');
     const [myInvitation, setMyInvitation] = useState(null);
+    const [invitationErr, setInvitationErr] = useState(null);
     const [token, setToken] = useState(state.token);
     const handleAddUserClick = () => {
         if (isAddingUser){
@@ -62,9 +63,13 @@ function ChatRoom() {
 
     const handleAddUserConfirm = () => {
         const trimmedLogin = newUserLogin.trim(); // 去除输入两边的空格
-        if (trimmedLogin !== '' && trimmedLogin !== currentLogin ) {
+        if (trimmedLogin === currentLogin ) {
+            setInvitationErr("Cannot invite yourself")
+        }else if(trimmedLogin === ''){
+            setInvitationErr("Empity field")
+        }else{
+            setInvitationErr(null)
             // 执行添加用户的逻辑
-            setIsNewUserLoginValid(null)
             const newInvitation = new Invitation(
                 currentLogin,
                 trimmedLogin,
@@ -75,8 +80,6 @@ function ChatRoom() {
             socketServ.send(JSON.stringify(newInvitation));
             setIsAddingUser(false);
             setNewUserLogin('');
-        }else{
-            setIsNewUserLoginValid(false)
         }
     };
     const handleResponseInvite = (value) => {
@@ -289,7 +292,9 @@ function ChatRoom() {
                     const updatedChats = prevChats.filter((chat) => chat.id !== chatRoomID);
                     return updatedChats;
                 });
-
+            }else if(messageType === "Inviter is already in the chatRoom" || messageType ==="Inviter doesn't exist"){
+                setIsAddingUser(true);
+                setInvitationErr(messageType);
             }
         };
         ws2Server.onclose = function (event) {
@@ -500,13 +505,13 @@ function ChatRoom() {
                         value={newUserLogin}
                         onChange={(e) => {
                             setNewUserLogin(e.target.value)
-                            setIsNewUserLoginValid(null)
                         }}
                         label="User Login"
                         fullWidth
                         variant="outlined"
-                        error={isNewUserLoginValid === false}
-                        helperText={isNewUserLoginValid === false ? (newUserLogin === '' ? 'Cannot be empty' : 'Cannot invite yourself') : ''}
+                        error={invitationErr !== null}
+                        helperText={invitationErr}
+
                         sx={{ marginTop: 2 }}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
