@@ -54,7 +54,19 @@ Pour la communication entre le frontend et le backend, Axios est utilisé comme 
    Il contient les classes de configuration de l'application, telles que la configuration CORS globale qui nous permettre de résoudre le problème de CrossOrigin, la configuration Hibernate, la configuration des SpringSecurity, la configuration d'authentification JWT, la configuration de websocket, etc.
 
 ## La conception (diagramme de classes, schéma relationnel, justifier brièvement vos choix) 密
-### 
+
+La table "User" contient les informations relatives aux utilisateurs, telles que leur nom, prénom, login, mot de passe, genre, etc.
+
+La table "ChatRoom" représente les salons de discussion et contient des informations sur le nom du salon et le chef du salon.
+
+La table "Contact" est une classe d'association entre les utilisateurs et les salons de discussion, permettant de définir les contacts (utilisateurs participant à un salon de discussion donné). Elle contient des clés étrangères vers les tables "User" et "ChatRoom". 
+
+### Justifications des choix de conception
+La relation entre User et ChatRoom est une relation de plusieurs-à-plusieurs, car un utilisateur peut participer à plusieurs salons de discussion et un salon de discussion peut avoir plusieurs utilisateurs participants. Cela est représenté par une relation ManyToMany entre ces deux entités.
+
+La classe Contact est introduite pour modéliser la relation entre User et ChatRoom, permettant de définir les contacts (utilisateurs participants) d'un salon de discussion donné.
+
+Les annotations JPA telles que @Entity, @Table, @ManyToOne, @ManyToMany et @JoinColumn sont utilisées pour mapper les classes Java aux tables de la base de données et spécifier les relations entre les entités.
 
 ## Explications sur les interaction entre les différente technologies
 ## React et Spring :
