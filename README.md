@@ -1,5 +1,7 @@
 # chat_salon
 ## Introduction
+Chat Salon est une application de chat en ligne qui permet aux utilisateurs de communiquer et d'interagir en temps réel. Il offre une plateforme conviviale et pratique pour faciliter les conversations.
+Avec sa technologie avancée basée sur Java, React et Spring Boot, Chat Salon offre une expérience utilisateur fluide et réactive. Les fonctionnalités clés de l'application incluent la création de salles de discussion, l'historique des discussions, la gestion des contacts et bien plus encore.
 ## Tech stack
 - 🐍JAVA
 - ⚙️React
@@ -54,7 +56,7 @@ Pour la communication entre le frontend et le backend, Axios est utilisé comme 
 ## La conception (diagramme de classes, schéma relationnel, justifier brièvement vos choix) 密
 ### 
 
-## Explications sur les interaction entre les différente technologies : react, spring et web socket
+## Explications sur les interaction entre les différente technologies
 ## React et Spring :
 Les interactions entre React et Spring se font via des API REST et Axios. React envoie des requêtes HTTP (GET, POST, PUT, DELETE) au backend développé avec Spring pour récupérer ou modifier des données. Le backend traite ces requêtes et renvoie des réponses, généralement sous forme de JSON et on a conçu quelques classes en tant que ResponseBody pour bien former les réponses. React peut alors utiliser ces données pour mettre à jour l'interface utilisateur de manière réactive.
 
@@ -141,13 +143,17 @@ Hibernate ORM fournit une couche d'abstraction pour interagir avec la base de do
 
 ## Problèmes rencontrés
 ### rappel asynchron de reactjs
-Si on utilise un hook d'effet (`useEffect`) pour effectuer une opération asynchrone pour ajouter les élement dans la liste, on vois que La liste à laquelle on aboutient n'est pas celle qu'on pense.
+
+Par exemple, si on veut obtenir le dernier état et définir l'état dans un callback asynchrone ou une fermeture, la première façon d'obtenir l'état n'est pas en temps réel, et la documentation officielle de React mentionne que toute fonction à l'intérieur du composant, y compris les gestionnaires d'événements et les effets, est "vue" à partir du rendu dans lequel il a été créé, de sorte que la valeur référencée est toujours ancienne, ce qui conduit éventuellement à une exception avec setState.
+
+Solution:
 
 ```javascript
-const [isMounted, setIsMounted] = useState(true);
+setChatRoom((prevChats) => {
+   const updatedChats = prevChats.filter((chat) => chat.id !== chatRoomID);
+   return updatedChats;
+});
 ```
-
-2. À l'intérieur de votre hook d'effet, utilisez la variable `isMounted` comme dépendance et une fonction de rappel annulée pour vérifier si le composant est toujours monté avant de mettre à jour l'état. Vous pouvez utiliser la fonction `return` du hook d'effet pour annuler l'opération asynchrone si le composant est démonté pendant son exécution.
 
 
 ### Problème de chargement paresseux(lazy loading) Hibernate et solution :
