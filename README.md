@@ -57,9 +57,48 @@ Pour la communication entre le frontend et le backend, Axios est utilisé comme 
 ## Explications sur les interaction entre les différente technologies : react, spring et web socket
 ## React et Spring :
 Les interactions entre React et Spring se font via des API REST et Axios. React envoie des requêtes HTTP (GET, POST, PUT, DELETE) au backend développé avec Spring pour récupérer ou modifier des données. Le backend traite ces requêtes et renvoie des réponses, généralement sous forme de JSON et on a conçu quelques classes en tant que ResponseBody pour bien former les réponses. React peut alors utiliser ces données pour mettre à jour l'interface utilisateur de manière réactive.
-`POST http://localhost:8080/login`
-POST http://localhost:8080/register
-{{token}}
+
+### Fonctionnalité de chat
+1. `POST http://localhost:8080/login`:
+   Description: Cette API permet à un utilisateur de se connecter à l'application.
+
+2. `POST http://localhost:8080/register`:
+   Description: Cette API permet à un nouvel utilisateur de s'inscrire dans l'application.
+
+3. `GET http://localhost:8080/chat_history/{{chatRoomID}}/{{token}}`:
+   Description: Cette API permet de récupérer l'historique des discussions d'une salle de discussion spécifique, identifiée par l'ID de la salle de discussion.
+
+4. `POST http://localhost:8080/create_chatroom/{{login}}/{{chatName}}/{{token}}`:
+   Description: Cette API permet de créer une nouvelle salle de discussion avec un nom spécifié par l'utilisateur, en utilisant le login de l'utilisateur(qui est le chef de salle de discussion) et le token pour l'authentification.
+
+5. `POST http://localhost:8080/delete_chatroom/{{user}}/{{chatRoomID}}/{{token}}`:
+   Description: Cette API permet de supprimer une salle de discussion spécifique, identifiée par l'ID de la salle de discussion, en utilisant le login de l'utilisateur et le token pour l'authentification.
+
+### Fonctionnalité de Admin
+6. `GET http://localhost:8080/admin/createUser`:
+   Description: Cette API permet à un administrateur de créer un nouvel utilisateur dans l'application.
+
+7. `POST http://localhost:8080/admin/deleteUser/{{id}}`:
+   Description: Cette API permet à un administrateur de supprimer un utilisateur spécifique, identifié par son ID.
+
+8. `GET http://localhost:8080/admin/editUser/{{id}}`:
+   Description: Cette API permet à un administrateur d'obtenir les informations d'un utilisateur spécifique pour les éditer.
+
+9. `POST http://localhost:8080/admin/enableDisableUser/{{id}}`:
+   Description: Cette API permet à un administrateur d'activer ou de désactiver un utilisateur spécifique, identifié par son ID.
+
+10. `GET http://localhost:8080/admin/getAllUsers/{{status}}`:
+    Description: Cette API permet à un administrateur d'obtenir la liste de tous les utilisateurs dans l'application, en fonction de leur statut (par exemple, actif, désactivé, etc.).
+
+11. `POST http://localhost:8080/admin/login`:
+    Description: Cette API permet à un administrateur de se connecter à l'interface d'administration de l'application.
+
+12. `POST http://localhost:8080/admin/modifyUser`:
+    Description: Cette API permet à un administrateur de modifier les informations d'un utilisateur spécifique.
+
+13. `POST http://localhost:8080/admin/register`:
+    Description: Cette API permet à un administrateur de faire le gestion de l'inscription=.
+ 
 ### Websocket et Spring :
 Les websockets sont un protocole de communication bidirectionnelle en temps réel entre un navigateur et un serveur. Ils permettent une communication continue et instantanée entre le frontend et le backend. Spring prend en charge les websockets grâce au module Spring Websocket. Il fournit des fonctionnalités pour la création de points de terminaison websocket, la gestion des connexions et l'échange de messages en temps réel.
 
