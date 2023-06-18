@@ -1,6 +1,5 @@
 # chat_salon
 ## Introduction
-On a réalisé un chat
 ## Tech stack
 - 🐍JAVA
 - ⚙️React
@@ -13,6 +12,8 @@ On a réalisé un chat
 - 🍓Thymeleaf
 
 ## l'architecture de l'application
+![image](https://github.com/Zcy-ai/chat_salon/assets/75319382/d0a00651-9210-4485-821a-6f7d13ac6a42)
+### L'architecture de backend
 1. `ChatSalonApplication.java` :
    Il s'agit de la classe d'entrée de l'application qui contient la méthode `main` pour démarrer l'application.
 
@@ -41,6 +42,7 @@ On a réalisé un chat
 
 ## La conception (diagramme de classes, schéma relationnel, justifier brièvement vos choix) 密
 ### 
+
 ## Explications sur les interaction entre les différente technologies : react, spring et web socket
 ### react
 ### spring
