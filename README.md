@@ -53,13 +53,17 @@ Pour la communication entre le frontend et le backend, Axios est utilisé comme 
 8. Package `config` :
    Il contient les classes de configuration de l'application, telles que la configuration CORS globale qui nous permettre de résoudre le problème de CrossOrigin, la configuration Hibernate, la configuration des SpringSecurity, la configuration d'authentification JWT, la configuration de websocket, etc.
 
-## La conception (diagramme de classes, schéma relationnel, justifier brièvement vos choix) 密
+## La conception de BDD
+<div align="center">
+  <img src="assets/diagram.png" alt="Diagram">
+</div>
+
 
 La table "User" contient les informations relatives aux utilisateurs, telles que leur nom, prénom, login, mot de passe, genre, etc.
 
 La table "ChatRoom" représente les salons de discussion et contient des informations sur le nom du salon et le chef du salon.
 
-La table "Contact" est une classe d'association entre les utilisateurs et les salons de discussion, permettant de définir les contacts (utilisateurs participant à un salon de discussion donné). Elle contient des clés étrangères vers les tables "User" et "ChatRoom". 
+La table "Contact" est une classe d'association entre les utilisateurs et les salons de discussion, permettant de définir les contacts (utilisateurs participant à un salon de discussion donné). Elle contient des clés étrangères vers les tables "User" et "ChatRoom".
 
 ### Justifications des choix de conception
 La relation entre User et ChatRoom est une relation de plusieurs-à-plusieurs, car un utilisateur peut participer à plusieurs salons de discussion et un salon de discussion peut avoir plusieurs utilisateurs participants. Cela est représenté par une relation ManyToMany entre ces deux entités.
@@ -112,7 +116,7 @@ Les interactions entre React et Spring se font via des API REST et Axios. React 
 
 13. `POST http://localhost:8080/admin/register`:
     Description: Cette API permet à un administrateur de faire le gestion de l'inscription=.
- 
+
 ### Websocket et Spring :
 Les websockets sont un protocole de communication bidirectionnelle en temps réel entre un navigateur et un serveur. Ils permettent une communication continue et instantanée entre le frontend et le backend. Spring prend en charge les websockets grâce au module Spring Websocket. Il fournit des fonctionnalités pour la création de points de terminaison websocket, la gestion des connexions et l'échange de messages en temps réel.
 
@@ -140,17 +144,17 @@ Le token JWT est stocké de manière sécurisée côté client. Cela permet au c
 On utilise des requêtes paramétrées : Au lieu de concaténer directement les valeurs dans vos requêtes SQL, utilisez des requêtes paramétrées avec des paramètres spécifiques pour les valeurs. Hibernate facilite cela en permettant l'utilisation de l'objet Query. Par exemple:
 ```java
 String hql = "UPDATE User u SET u.firstName = :firstName, u.lastName = :lastName, u.gender = :gender, u.password = :pwd, u.admin = :admin, u.enabled = :enabled WHERE u.login = :login";
-session.createQuery(hql)
- .setParameter("firstName", user.getFirstName())
- .setParameter("lastName", user.getLastName())
- .setParameter("gender", user.getGender())
- .setParameter("pwd", user.getPassword())
- .setParameter("enabled", user.isEnabled(), BooleanType.INSTANCE)
- .setParameter("admin", user.getAdmin(), BooleanType.INSTANCE)
- .setParameter("login", user.getLogin())
- .executeUpdate();
+        session.createQuery(hql)
+        .setParameter("firstName", user.getFirstName())
+        .setParameter("lastName", user.getLastName())
+        .setParameter("gender", user.getGender())
+        .setParameter("pwd", user.getPassword())
+        .setParameter("enabled", user.isEnabled(), BooleanType.INSTANCE)
+        .setParameter("admin", user.getAdmin(), BooleanType.INSTANCE)
+        .setParameter("login", user.getLogin())
+        .executeUpdate();
 ```
-  
+
 Hibernate ORM fournit une couche d'abstraction pour interagir avec la base de données. Utilisez les entités et les annotations JPA pour définir les relations et les requêtes entre vos objets et les tables de la base de données. Hibernate gère automatiquement l'encapsulation des valeurs et prévient les attaques d'injection SQL.
 
 ## Problèmes rencontrés
