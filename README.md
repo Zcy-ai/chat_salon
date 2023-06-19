@@ -128,7 +128,21 @@ On a une fonction hook(useEffect) pour détecter si l'utilisateur change son sal
 
 En meme temps, On a un autre connexion websocket avec le endpoint `ws://localhost:8080/contact/${currentLogin}/${token}` qui est pour l'objectif de mettre en œuvre de la fonctionnalité d'inviter des utilisateurs dans des salons de discussion
 
-## Résultat eco-index de votre site (plugin greenit) et des pistes d'amélioration 密
+## Résultat eco-index de site et des pistes d'amélioration
+### Plugin GreenIT
+| Url                                          | Request number | Page Size (KB) | Dom Size | Greenhouse Gases Emission (gCO2e) | Water Consumption (cl) | EcoIndex | Grade |
+|----------------------------------------------|----------------|----------------|----------|----------------------------------|------------------------|----------|-------|
+| http://localhost:3000/login                   | 0              | 0              | 140      | 1.14                             | 1.71                   | 93.07    | A     |
+| http://localhost:3000/register                | 0              | 0              | 44       | 1.05                             | 1.57                   | 97.66    | A     |
+| http://localhost:3000/chatRoom                | 2              | 1              | 323      | 1.32                             | 1.97                   | 84.18    | A     |
+| http://localhost:8080/admin/login             | 4              | 60             | 125      | 1.19                             | 1.79                   | 90.41    | A     |
+| http://localhost:8080/admin/getAllUsers/all    | 0              | 0              | 125      | 1.13                             | 1.69                   | 93.51    | A     |
+| http://localhost:8080/admin/getAllUsers/disabled | 0              | 0              | 80       | 1.10                             | 1.65                   | 94.85    | A     |
+| http://localhost:8080/admin/createUser         | 0              | 0              | 8        | 1.09                             | 1.63                   | 95.63    | A     |
+- Les URL "http://localhost:3000/login" et "http://localhost:3000/register" ont un EcoIndex élevé (93.07 et 97.66 respectivement), ce qui indique une bonne performance écologique. Cependant, la taille de la page pour "http://localhost:3000/login" est de 140 KB, ce qui pourrait être réduit pour améliorer davantage l'efficacité.
+- L'URL "http://localhost:3000/chatRoom" a un nombre de requêtes élevé (2), ce qui peut être optimisé pour réduire les ressources utilisées et améliorer l'efficacité.
+- Les URL liées à l'administration ("http://localhost:8080/admin/login", "http://localhost:8080/admin/getAllUsers/all", "http://localhost:8080/admin/getAllUsers/disabled" et "http://localhost:8080/admin/createUser") ont des EcoIndex élevés (entre 90.41 et 95.63), indiquant une bonne performance écologique. Cependant, la taille de la page pour "http://localhost:8080/admin/login" est de 60 KB, ce qui pourrait être optimisé pour réduire davantage la consommation de ressources.
+
 ## Sécurité
 ### JWT
 JSON Web Token (JWT) est un standard ouvert (RFC 7519) qui permet de représenter de manière sécurisée des informations entre deux parties sous forme d'objet JSON. Il est utilisé pour l'authentification et l'autorisation dans les applications web.
