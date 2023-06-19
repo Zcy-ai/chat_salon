@@ -25,7 +25,7 @@ La base de données utilisée est `Redis` et `MySQL`. `Redis` est une base de do
 
 Pour la communication entre le frontend et le backend, Axios est utilisé comme client HTTP pour envoyer des requêtes REST au backend. Les API REST permettent d'échanger des données entre le frontend et le backend de manière asynchrone. De plus, les websockets sont utilisés pour une communication en temps réel bidirectionnelle entre le frontend et le backend qui nous permet de réaliser le chat en temps réel.
 
-### L'architeccture de frontend
+### L'architecture de frontend
 Le front-end est basé sur React.js, avec trois composants importants :
 1. `Login` :<br/>
    Le composant Login est responsable de la fonctionnalité de connexion à l'application. Il contient un formulaire de connexion où les utilisateurs peuvent saisir leur adresse e-mail et leur mot de passe. Lorsque le formulaire est soumis, une requête est envoyée au serveur avec les informations de connexion fournies par l'utilisateur. Si la connexion est réussie (statut 200), l'utilisateur est redirigé vers la page de la salle de discussion principale (`ChatRoom`) avec les données de l'utilisateur, y compris la liste des salles de discussion disponibles et des utilisateurs. Si la connexion échoue, un message d'erreur approprié est affiché.
