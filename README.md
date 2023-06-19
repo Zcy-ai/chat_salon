@@ -53,7 +53,11 @@ Pour la communication entre le frontend et le backend, Axios est utilisé comme 
 8. Package `config` :
    Il contient les classes de configuration de l'application, telles que la configuration CORS globale qui nous permettre de résoudre le problème de CrossOrigin, la configuration Hibernate, la configuration des SpringSecurity, la configuration d'authentification JWT, la configuration de websocket, etc.
 
-## La conception (diagramme de classes, schéma relationnel, justifier brièvement vos choix) 密
+## La conception de BDD
+<div align="center">
+  <img src="assets/diagram.png" alt="Diagram">
+</div>
+
 
 La table "User" contient les informations relatives aux utilisateurs, telles que leur nom, prénom, login, mot de passe, genre, etc.
 

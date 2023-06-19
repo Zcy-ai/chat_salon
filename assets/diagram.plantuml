@@ -1,0 +1,28 @@
+@startuml
+
+Class User {
+admin :boolean
+enabled boolean
+firstName : String
+gender : String
+id : int
+lastName String
+login : String
+loginAttempts : int
+password : String
+}
+
+Class ChatRoom {
+chef : User
+id : int
+name : String
+}
+
+Class Contact {
+id : int
+}
+
+User "*" -right-> "*" ChatRoom:chat
+(User, ChatRoom).Contact
+
+@enduml
