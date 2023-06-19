@@ -25,7 +25,33 @@ La base de données utilisée est `Redis` et `MySQL`. `Redis` est une base de do
 
 Pour la communication entre le frontend et le backend, Axios est utilisé comme client HTTP pour envoyer des requêtes REST au backend. Les API REST permettent d'échanger des données entre le frontend et le backend de manière asynchrone. De plus, les websockets sont utilisés pour une communication en temps réel bidirectionnelle entre le frontend et le backend qui nous permet de réaliser le chat en temps réel.
 
-### L'architeccture de frontend 密
+### L'architeccture de frontend
+Le front-end est basé sur React.js, avec trois composants importants :
+1. `Login` :<br/>
+   Le composant Login est responsable de la fonctionnalité de connexion à l'application. Il contient un formulaire de connexion où les utilisateurs peuvent saisir leur adresse e-mail et leur mot de passe. Lorsque le formulaire est soumis, une requête est envoyée au serveur avec les informations de connexion fournies par l'utilisateur. Si la connexion est réussie (statut 200), l'utilisateur est redirigé vers la page de la salle de discussion principale (`ChatRoom`) avec les données de l'utilisateur, y compris la liste des salles de discussion disponibles et des utilisateurs. Si la connexion échoue, un message d'erreur approprié est affiché.
+   <br/>
+   ___Lorsqu'un utilisateur a saisi trois fois un mot de passe erroné, son statut devient "désactivé" et il ne peut plus se connecter___. Vous devrez demander à l'administrateur de modifier le statut de l'utilisateur à partir de l'interface d'administration afin de pouvoir continuer à se connecter.
+3. `Register` :<br/>
+   Le composant Register est utilisé pour l'inscription d'un utilisateur. Il fournit un formulaire avec plusieurs champs, notamment :
+
+- `firstName` : Champ pour le prénom de l'utilisateur.
+- `lastName` : Champ pour le nom de famille de l'utilisateur.
+- `login` : Champ pour l'adresse e-mail ou le nom d'utilisateur de l'utilisateur.
+- `password` : Champ pour le mot de passe de l'utilisateur.
+- `confirmPassword` : Champ pour la confirmation du mot de passe de l'utilisateur.
+- `gender` : Champ pour sélectionner le genre de l'utilisateur.
+- `admin` : Champ pour sélectionner si l'utilisateur est un administrateur ou non.
+
+   Le formulaire effectue des validations sur les champs, tels que la vérification de la présence et du format des données saisies. Si les données du formulaire sont valides, elles sont envoyées au serveur via une requête HTTP POST utilisant Axios. En cas de succès de l'inscription, l'utilisateur est redirigé vers la page de connexion.
+3. `ChatRoom` :<br/>
+   Le composant ChatRoom représente la salle de discussion principale de l'application où les utilisateurs peuvent communiquer en temps réel.
+   Les principales caractéristiques de ce composant sont les suivantes :
+- ***Connexion et déconnexion des utilisateurs :*** les utilisateurs peuvent se connecter et se déconnecter de l'application à l'aide de leurs informations d'identification.
+- ***Rejoindre et quitter des salles de discussion :*** les utilisateurs peuvent rejoindre différentes salles de discussion et basculer entre elles pour communiquer avec d'autres utilisateurs.
+- ***Envoi et réception de messages :*** les utilisateurs peuvent envoyer des messages dans une salle de discussion et recevoir les messages des autres utilisateurs en temps réel.
+- ***Invitation d'utilisateurs :*** les utilisateurs peuvent inviter d'autres utilisateurs à rejoindre une salle de discussion spécifique en saisissant leur adresse e-mail.
+- ***Gestion des invitations :*** les utilisateurs peuvent accepter ou refuser les invitations reçues pour rejoindre une salle de discussion.
+- ***Suppression de salles de discussion :*** les utilisateurs peuvent supprimer les salles de discussion dont ils sont propriétaires.
 ### L'architecture de backend
 1. `ChatSalonApplication.java` :
    Il s'agit de la classe d'entrée de l'application qui contient la méthode `main` pour démarrer l'application.
