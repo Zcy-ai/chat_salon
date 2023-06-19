@@ -128,7 +128,7 @@ On a une fonction hook(useEffect) pour détecter si l'utilisateur change son sal
 
 En meme temps, On a un autre connexion websocket avec le endpoint `ws://localhost:8080/contact/${currentLogin}/${token}` qui est pour l'objectif de mettre en œuvre de la fonctionnalité d'inviter des utilisateurs dans des salons de discussion
 
-## Résultat eco-index de site et des pistes d'amélioration
+## Résultat eco-index de site
 ### Plugin GreenIT
 | Url                                          | Request number | Page Size (KB) | Dom Size | Greenhouse Gases Emission (gCO2e) | Water Consumption (cl) | EcoIndex | Grade |
 |----------------------------------------------|----------------|----------------|----------|----------------------------------|------------------------|----------|-------|
@@ -142,7 +142,18 @@ En meme temps, On a un autre connexion websocket avec le endpoint `ws://localhos
 - Les URL "http://localhost:3000/login" et "http://localhost:3000/register" ont un EcoIndex élevé (93.07 et 97.66 respectivement), ce qui indique une bonne performance écologique. Cependant, la taille de la page pour "http://localhost:3000/login" est de 140 KB, ce qui pourrait être réduit pour améliorer davantage l'efficacité.
 - L'URL "http://localhost:3000/chatRoom" a un nombre de requêtes élevé (2), ce qui peut être optimisé pour réduire les ressources utilisées et améliorer l'efficacité.
 - Les URL liées à l'administration ("http://localhost:8080/admin/login", "http://localhost:8080/admin/getAllUsers/all", "http://localhost:8080/admin/getAllUsers/disabled" et "http://localhost:8080/admin/createUser") ont des EcoIndex élevés (entre 90.41 et 95.63), indiquant une bonne performance écologique. Cependant, la taille de la page pour "http://localhost:8080/admin/login" est de 60 KB, ce qui pourrait être optimisé pour réduire davantage la consommation de ressources.
-
+### Avantages
+- Nous utilisons JSON pour transmettre les données dans les requêtes, ce qui est plus rapide et dispose de plus de ressources CPU que XML.
+### Pistes d'amélioration
+- Stockage local
+- Cache API
+- Mettre en cache les réponses des APIs REST
+- Mettre en cache le Bytecode
+- Mettre en cache les objets souvent accédés en JavaScript
+- Mettre en cache les données calculées souvent utilisées
+- Utiliser des ORMs qui ont une bonne stratégie de mise en cache
+- Utiliser en même temps plusieurs niveaux de cache
+- Mettre les caches entièrement en RAM
 ## Sécurité
 ### JWT
 JSON Web Token (JWT) est un standard ouvert (RFC 7519) qui permet de représenter de manière sécurisée des informations entre deux parties sous forme d'objet JSON. Il est utilisé pour l'authentification et l'autorisation dans les applications web.
