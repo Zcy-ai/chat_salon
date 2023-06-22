@@ -30,6 +30,10 @@ public class ChatHistoryController {
         System.out.println(chatRoomID);
         // TODO jwt认证
 //        String login = jwtTokenProvider.getUserLoginFromJWT(token);
+        if (!chatHistoryService.isRedisConnected()) {
+            System.out.println("Not connected to Redis");
+            return ResponseEntity.notFound().build();
+        }
         Set<String> chatHistory = chatHistoryService.getChatHistoryByChatID(chatRoomID);
         System.out.println(chatHistory);
         if (chatHistory != null) {

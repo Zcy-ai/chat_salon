@@ -46,7 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/create_chatroom/**").permitAll()
             .antMatchers("/delete_chatroom/**").permitAll()
             .antMatchers("/css/**", "/fonts/**", "/images/**", "/js/**", "/error", "/webjars/**").permitAll()
-            .antMatchers("/reset-password*").permitAll()
+            .antMatchers("/resetPwd").permitAll()
 //            .antMatchers("/admin*").hasAnyRole("ADMIN")
             .antMatchers("/chatRoom").permitAll()
             .antMatchers("/").permitAll()

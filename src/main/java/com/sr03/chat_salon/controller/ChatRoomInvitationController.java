@@ -42,15 +42,15 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String login = session.getUri().getPath().split("/")[2];
         String token = session.getUri().getPath().split("/")[3];
-        // jwt鉴权
+        // jwt forensics
         User user = userService.findUserByLogin(login);
         if (user != null && jwtTokenProvider.validateToken(token, user)) {
-            log.info("收到Session", session);
+            log.info("Recevoir la session", session);
             webSocketMap.put(login, session);
         }
     }
     @Override
-    @Transactional // TODO 待定
+    @Transactional
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception{
         ObjectMapper objectMapper = new ObjectMapper();
         InviteMessage inviteMessage = objectMapper.readValue(message.getPayload(), InviteMessage.class);
@@ -60,12 +60,12 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
             ChatRoom chatRoom = chatRoomService.findChatRoomByID(inviteMessage.getChatRoomID());
             Contact contact = new Contact(user, chatRoom);
             contactService.addContact(contact);
-            log.info("Add User"+user+" to the chatRoom "+chatRoom);
+//            log.info("Add User"+user+" to the chatRoom "+chatRoom);
             sendMessage(inviteMessage);
             return;
         }
         Contact contact = contactService.findContactByChatRoomLogin(inviteMessage.getChatRoomID(),inviteMessage.getReceiver());
-        if (contact != null) { // 邀请的人已经在群里了
+        if (contact != null) { // Les invités sont déjà dans le groupe
             String err = "Inviter is already in the chatRoom";
             log.info(err);
             inviteMessage.setReceiver(inviteMessage.getInviter()); //把错误传给自己
@@ -81,7 +81,7 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        log.info("连接关闭S:{}", session.getId());
+        log.info("Connexion fermée S:{}", session.getId());
     }
 
     public void sendMessage(InviteMessage message) throws IOException {

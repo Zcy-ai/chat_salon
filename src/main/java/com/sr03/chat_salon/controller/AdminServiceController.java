@@ -23,23 +23,28 @@ public class AdminServiceController {
 
     @PostMapping(value = "/login")
     public String adminLoginHandler(
-        @RequestParam("login") String login,
-        @RequestParam("password") String pwd) {
+            @RequestParam("login") String login,
+            @RequestParam("password") String pwd,
+            Model model) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
-            // TODO 换成logback记录
             System.out.println("User Login Not Found :(");
-            return null;
+            model.addAttribute("errorMsg", "User Login Not Found :(");
+            return "index";
         }
-        // 验证密码，验证成功跳转
         if (userService.authenticate(login, pwd)) {
-            if (user.getAdmin()){
+            if (user.getAdmin()) {
                 return "redirect:/admin/getAllUsers/all";
             }
             System.out.println("Permission denied :(");
+            model.addAttribute("errorMsg", "Permission denied :(");
+            return "index";
         }
+        System.out.println("Password error :(");
+        model.addAttribute("errorMsg", "Password error :(");
         return "index";
     }
+
 
     @RequestMapping(value = "/getAllUsers/{status}")
     public String getAllUsersHandler(
@@ -49,11 +54,11 @@ public class AdminServiceController {
             @RequestParam(value = "sortBy", defaultValue = "id") String sortBy,
             @PathVariable("status") String status) {
 
-        // 定义分页参数
+        // Définir les paramètres de pagination
         int pageSize = 5;
         Pageable pageable = PageRequest.of(page, pageSize);
 
-        // 获取分页结果
+        // Obtenir les résultats de la pagination
         Page<User> pagedUsers;
         if (searchQuery != null && !searchQuery.isEmpty()) {
             pagedUsers = userService.searchUsers(searchQuery, pageable, sortBy);
@@ -65,7 +70,7 @@ public class AdminServiceController {
             }
         }
 
-        // 添加分页结果和搜索关键词到模型
+        // Ajouter les résultats paginés et les termes de recherche au modèle
         model.addAttribute("pagedUsers", pagedUsers);
         model.addAttribute("searchQuery", searchQuery);
         model.addAttribute("status", status);
@@ -76,11 +81,16 @@ public class AdminServiceController {
     public String editUserHandler(@PathVariable("id") int id, Model model) {
         User user = userService.findUserById(id);
         model.addAttribute("user", user);
+        model.addAttribute("prevPassword", user.getPassword());
         return "editAdm";
     }
 
     @PostMapping(value = "/modifyUser")
-    public String modifyUserHandler(@ModelAttribute User user) {
+    public String modifyUserHandler(@ModelAttribute User user, @RequestParam String prevPassword) {
+        if (!prevPassword.equals(user.getPassword())){ // Modifier le mot de passe s'il est différent deux fois
+            String security_pwd = passwordEncoder.encode(user.getPassword());
+            user.setPassword(security_pwd);
+        }
         userService.modifyUser(user);
         return "redirect:/admin/getAllUsers/all";
     }
@@ -107,7 +117,7 @@ public class AdminServiceController {
             @RequestParam(value="gender") String gender,
             @RequestParam(value="password") String password,
             Model model) {
-        // 查找是否有重复的用户注册login findUserByLogin
+        // Déterminer s'il existe des utilisateurs en double enregistrés avec un login findUserByLogin
         if (userService.findUserByLogin(login) != null) {
             //TODO 换成logback记录
             model.addAttribute("error", "Login already registered!");
@@ -115,24 +125,9 @@ public class AdminServiceController {
             return "registerAdm";
         }
 
-        // 创建用户
+        // Créer un utilisateur
         User user = new User(last_name, first_name, login, admin, gender, password);
         userService.addUser(user);
         return "redirect:/admin/getAllUsers/all";
-    }
-    @PostMapping("/reset_password")
-    public String ResetPasswordHandler(
-            @RequestParam(value="login") String login,
-            @RequestParam(value="password") String password) {
-        User user = userService.findUserByLogin(login);
-        if (user == null) {
-            // TODO 报错
-            return "/index";
-        }
-        // 对密码进行加密
-        String security_pwd = passwordEncoder.encode(user.getPassword());
-        user.setPassword(security_pwd);
-        userService.modifyUser(user);
-        return "/index";
     }
 }

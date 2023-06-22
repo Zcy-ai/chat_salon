@@ -32,24 +32,24 @@ class Message {
 function ChatRoom() {
     const location = useLocation();
     const state = location.state;
-    let currentLogin = state.login; // email of user
-    let currentFirstName = state.firstName; // firstName of user
-    let currentLastName = state.lastName; // lastName of user
-    const [currentChatRoomIndex, setCurrentChatRoomIndex] = useState(null); // current index of room in chatRoom
-    const [currentChatRoomId, setCurrentChatRoomId] = useState(null); // current id of chatRoom at backend
+    let currentLogin = state.login; // email de l'utilisateur
+    let currentFirstName = state.firstName; // Prénom de l'utilisateur
+    let currentLastName = state.lastName; // Nom de famille de l'utilisateur
+    const [currentChatRoomIndex, setCurrentChatRoomIndex] = useState(null); // index actuel de la salle dans chatRoom
+    const [currentChatRoomId, setCurrentChatRoomId] = useState(null); // identifiant actuel du chatRoom dans le backend
     const [newChatName, setNewChatName] = useState('');
     const [isChatNameValid, setIsChatNameValid] = useState(true);
-    const [message, setMessage] = useState(''); //发送消息的输入框
-    const [socket, setSocket] = useState(null); //websocket connecté pour l'instant
-    const [socketServ, setSocketServ] = useState(null); //websocket to server
-    const [chatRoom, setChatRoom] = useState(state.chatRoomList); // list of chatRoom
-    const [messageList,setMessageList] = useState([]); //当前聊天室的所有消息集合
+    const [message, setMessage] = useState(''); // Boîte de saisie pour l'envoi de messages
+    const [socket, setSocket] = useState(null); // Websocket pour l'envoi de messages de chat au serveur
+    const [socketServ, setSocketServ] = useState(null); // Websocket pour le transfert d'autres informations vers et depuis le serveur
+    const [chatRoom, setChatRoom] = useState(state.chatRoomList); // liste de chatRoom
+    const [messageList,setMessageList] = useState([]); // Collection de tous les messages du salon de discussion actuel
     const [isAddingUser, setIsAddingUser] = useState(false);
     const [newUserLogin, setNewUserLogin] = useState('');
     const [myInvitation, setMyInvitation] = useState(null);
     const [invitationErr, setInvitationErr] = useState(null);
     const [token, setToken] = useState(state.token);
-    const [height, setHeight] = useState('60px'); // 初始化高度为60px
+    const [height, setHeight] = useState('60px'); // Hauteur initiale de 60px
 
     useEffect(() => {
         const handleResize = () => {
@@ -59,15 +59,15 @@ function ChatRoom() {
                 setHeight('60px');
             }
         };
-
-        // 添加窗口大小改变的事件监听器
+        handleResize(); // Appeler la fonction handleResize une fois
+        // Ajout d'un récepteur d'événements pour le changement de taille de la fenêtre
         window.addEventListener('resize', handleResize);
 
-        // 组件卸载时移除事件监听器
+        // Supprime l'écouteur d'événements lorsque le composant est déchargé
         return () => {
             window.removeEventListener('resize', handleResize);
         };
-    }, []); // 空依赖数组表示只在组件挂载和卸载时执行一次
+    }, []); // Un tableau de dépendances vide signifie qu'il n'est exécuté qu'une seule fois lorsque le composant est monté et démonté.
     const logout = () => {
         localStorage.removeItem('token');
         if (socket) {
@@ -92,14 +92,14 @@ function ChatRoom() {
     };
 
     const handleAddUserConfirm = () => {
-        const trimmedLogin = newUserLogin.trim(); // 去除输入两边的空格
+        const trimmedLogin = newUserLogin.trim(); // Supprimer les espaces de part et d'autre de l'entrée
         if (trimmedLogin === currentLogin ) {
             setInvitationErr("Cannot invite yourself")
         }else if(trimmedLogin === ''){
             setInvitationErr("Empity field")
         }else{
             setInvitationErr(null)
-            // 执行添加用户的逻辑
+            // Exécuter la logique d'ajout d'utilisateurs
             const newInvitation = new Invitation(
                 currentLogin,
                 trimmedLogin,
@@ -131,7 +131,7 @@ function ChatRoom() {
         }
     };
 
-    // 当用户点击切换聊天室时，我们更新currentChatRoomIndex和currentChatRoomId
+    // Nous mettons à jour l'index et l'identifiant de la salle de chat actuelle lorsque l'utilisateur clique pour changer de salle de chat.
     const handleChatClick = (roomIndex, roomId) => {
         setIsAddingUser(false);
         if (currentChatRoomIndex === roomIndex){
@@ -140,7 +140,6 @@ function ChatRoom() {
             setMessageList([]);
             return;
         }
-        // TODO 向后端请求聊天记录
         axios.get(`http://localhost:8080/chat_history/${roomId}/${token}`)
             .then((response) => {
                 // const messageHistory = response.data;
@@ -154,32 +153,26 @@ function ChatRoom() {
                 setMessageList([]);
                 setCurrentChatRoomIndex(roomIndex);
                 setCurrentChatRoomId(roomId);
-            // 如果请求失败，可以在这里处理错误
+            // Si la demande échoue, l'erreur peut être traitée ici
                 console.error('There has been a problem with your axios operation:', error);
             });
         // console.log(currentChatRoomId);
         // console.log(currentChatRoomIndex);
     };
     const handleDeleteChat = (roomId) => {
-        // axios向后端发送删除chat的请求
-        // TODO 更新chatRoom、currentChatRoomIndex和currentChatRoomId
-        // if (roomId === currentChatRoomIndex){ //删除当前的，默认切换到 0 号聊天室
-        //     setCurrentChatRoomIndex(0);
-        // }
+        // axios envoie une requête au backend pour supprimer le chat
         axios.post(`http://localhost:8080/delete_chatroom/${currentLogin}/${roomId}/${token}`)
             .then((response) => {
                 if (response.status === 200) {
-                    // 后端删除成功后前端也进行删除
+                    // Suppression du front-end après une suppression réussie du back-end
                     setChatRoom((prevChats) => {
                         const updatedChats = prevChats.filter((chat) => chat.id !== roomId);
                         return updatedChats;
                     });
-                    // TODO 更新currentChatRoomIndex和currentChatRoomId
+                    // Mises à jour currentChatRoomIndex et currentChatRoomId
                     setCurrentChatRoomIndex(null);
                     setCurrentChatRoomId(null);
                     setMessageList([]);
-                } else {
-                    // TODO 请求失败的处理
                 }
             }).catch((error) => {
             console.log(error);
@@ -198,20 +191,18 @@ function ChatRoom() {
                         ...response.data,
                     };
                     setChatRoom((prevChats) => [...prevChats, newChat]);
-                } else {
-                    // TODO 请求失败的处理
                 }
             }).catch((error) => {
             console.log(error);
         });
         setNewChatName('');
     };
-    // 向后端发送消息
+    // Envoi de messages au back-end
     const sendMessage = () => {
         if (message.trim() !== '') {
-            const currentDate = new Date().toLocaleString(); // 添加日期
+            const currentDate = new Date().toLocaleString(); // Ajouter une date
             const formattedMessage = `${currentFirstName} ${currentLastName}: ${message}`
-            //发送消息
+            // Envoyer un message
             const newMessage = new Message (
                 currentChatRoomId,
                 currentLogin,
@@ -221,7 +212,7 @@ function ChatRoom() {
                 currentDate,
             );
             socket.send(JSON.stringify(newMessage));
-            setMessage(''); //发送出消息后清空消息输入框
+            setMessage(''); // Effacer le champ de saisie du message après l'avoir envoyé
         }
     };
     function stringToColor(string) {
@@ -252,22 +243,22 @@ function ChatRoom() {
             children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
         };
     }
-    // 监控currentChatRoomId和currentLogin,当两者发生变化，更新websocket连接
+    // Surveiller currentChatRoomId et currentLogin, et mettre à jour les connexions websocket en cas de changement.
     useEffect(() => {
         if (currentChatRoomId === null){
             setSocket(null);
         } else {
-            // 创建新的WebSocket连接
+            // Créer une nouvelle connexion WebSocket
             const newSocket = new WebSocket(`ws://localhost:8080/chat/${currentLogin}/${currentChatRoomId}/${token}`);
             console.log(chatRoom);
-            // 设置WebSocket事件处理程序
+            // Mise en place de gestionnaires d'événements WebSocket
             newSocket.onopen = (event) => {
                 console.log(newSocket);
             };
             newSocket.onmessage = (event) => {
                 const receivedMessage = JSON.parse(event.data);
                 const {sender, firstName, lastName, content, timestamp} = receivedMessage;
-                // const currentDate = new Date().toLocaleString(); // 添加日期
+                // const currentDate = new Date().toLocaleString(); // Ajouter une date
                 // const formattedMessage = `${firstName} ${lastName}: ${content}`
                 const newMessage = new Message(
                     currentChatRoomId,
@@ -290,9 +281,9 @@ function ChatRoom() {
                 // setWebSocketReady(false);
                 socket.close();
             };
-            // 更新state中的socket
+            // Mise à jour des sockets dans State
             setSocket(newSocket);
-            // 用currentLogin和currentChat作为依赖项，任一变化都会重新运行effect
+            // Utiliser currentLogin et currentChat comme dépendances, tout changement aura un effet de ré-exécution.
         }
     }, [currentChatRoomId,currentLogin]);
     useEffect(()=>{
@@ -392,7 +383,7 @@ function ChatRoom() {
                                             );
                                         }
 
-                                        return null; // 不在 "Chef" 分类中的聊天室项将不会显示
+                                        return null; // Les éléments du salon de discussion qui ne font pas partie de la catégorie "Chef" ne seront pas affichés.
                                     })}
                                     <ListSubheader sx={{ backgroundColor: '#e1f5fe', borderBottom: '1px solid #000'}}>Member</ListSubheader>
                                     {chatRoom?.map((chat, index) => {
@@ -420,7 +411,7 @@ function ChatRoom() {
                                             );
                                         }
 
-                                        return null; // 不在 "Member" 分类中的聊天室项将不会显示
+                                        return null; // Les éléments du salon de discussion qui ne font pas partie de la catégorie "Membre" ne seront pas affichés.
                                     })}
                                 </List>
                             </Grid>
@@ -452,7 +443,7 @@ function ChatRoom() {
                         </Grid>
                     </Paper>
                 </Grid>
-                {/*条件渲染*/}
+                {/*rendu conditionnel*/}
                 {(currentChatRoomIndex!== null) && (
                     <Grid item xs={8} sx={{ height: '100%' }}>
                         <Paper elevation={3} sx={{ height: '100%' }}>
@@ -526,7 +517,7 @@ function ChatRoom() {
                     </Grid>
                 )}
             </Grid>
-            {/* 添加用户输入框 */}
+            {/* Ajouter une boîte de saisie pour l'utilisateur */}
             {isAddingUser && (
                 <Box
                     sx={{
@@ -571,7 +562,7 @@ function ChatRoom() {
                     </Box>
                 </Box>
             )}
-            {/* 接受邀请 */}
+            {/* Acceptation de l'invitation */}
             {myInvitation && (
                 <Box
                     sx={{

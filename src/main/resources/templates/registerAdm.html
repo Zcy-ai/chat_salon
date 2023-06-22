@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Registration</title>
-  <!-- 引入Bootstrap样式 -->
+  <!-- Introduire le style Bootstrap -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"></link>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.min.css" integrity="sha512-YDChav1pUAodyH1Ja7PIpEDUOoFROpZi5Lb7pY8+9+kU8UTr3J8SI8QO7SRuf4qdDKb5OI0xSt4Vk1wiYjBXgw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 <div class="container">
   <h1 class="text-center my-5">Registration</h1>
-  <!-- 表单 -->
+  <!-- Formulaire -->
   <form action="#" th:action="@{/admin/register}" th:object="${user}" method="post" id = "register">
     <div class="form-group">
       <label for="firstName">First Name:</label>
@@ -53,7 +53,7 @@
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
 </div>
-<!-- 引入Bootstrap JS -->
+<!-- Introduction de Bootstrap JS -->
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/popper.js/2.9.3/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>

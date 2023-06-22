@@ -17,6 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -30,6 +32,7 @@ public class UserServiceController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
     private static final Logger logger = LoggerFactory.getLogger(UserServiceController.class);
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @RequestMapping("register")
     public String ShowRegisterForm() {
         return "register";
@@ -44,14 +47,14 @@ public class UserServiceController {
             @RequestParam(value="gender") String gender,
             @RequestParam(value="password") String password,
             Model model) {
-        // 查找是否有重复的用户注册login findUserByLogin
+        // Déterminer s'il y a des utilisateurs enregistrés en double avec le login findUserByLogin
         if (userService.findUserByLogin(login) != null) {
-            // logback日志记录
+            // logback logging
             model.addAttribute("error", "Login already registered!");
             logger.error("Login already registered!");
             return ResponseEntity.notFound().build();
         }
-        // 创建用户
+        // Créer un utilisateur
         User user = new User(last_name, first_name, login, admin, gender, password);
         userService.addUser(user);
         logger.info("User "+user.getLogin()+" created");
@@ -89,7 +92,7 @@ public class UserServiceController {
             UserLoginResp errorResponse = new UserLoginResp(message);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
-        // 验证密码，验证成功跳转
+        // Vérifier le mot de passe et passer à la vérification réussie
         if (userService.authenticate(login, pwd)){
             // Reset login attempts on successful login
             user.setLoginAttempts(0);
@@ -98,7 +101,7 @@ public class UserServiceController {
             request.getSession().setAttribute("user", user.getLogin());
             String token = jwtTokenProvider.generateToken(login);
             logger.info("User "+login+" connected");
-            // TODO 存储在线用户到redis
+            // TODO Stocker les utilisateurs en ligne dans redis
             List<User> user_list = null;
             if (user.getAdmin()) {
                 user_list = userService.getAllUsers();
@@ -116,28 +119,32 @@ public class UserServiceController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
-//
-//    @RequestMapping (value = "/getAllUsers")
-//    public String getAllUsersHandler(Model model) {
-//        List<User> user_list = userService.getAllUsers();
-//        model.addAttribute("users", user_list);
-//        return "admin";
-//    }
-//
-//    @GetMapping (value = "/updateUser")
-//    public String updateUserHandler() {
-//        // TODO 编辑用户实现
-//        return null;
-//    }
-//    @DeleteMapping (value = "/deleteUser/{user_id}")
-//    @ResponseBody
-//    public ResponseEntity deleteUserHandler(@PathVariable("user_id") int id){
-//        userService.deleteUserById(id);
-//        logger.info("User with id "+id+" deleted");
-//        List<User> user_list = userService.getAllUsers();
-//        UserLoginResp resp = new UserLoginResp("","", user_list, null,"");
-//        return ResponseEntity.ok(resp);
-//    }
+    @RequestMapping("resetPwd")
+    public String ShowResetPasswordForm() {
+        return "resetPwd";
+    }
+    @PutMapping (value = "/resetPwd")
+    @ResponseBody
+    public ResponseEntity ResetPwdHandler(
+        @RequestParam(value="login") String login,
+        @RequestParam(value="oldPassword") String oldPassword,
+        @RequestParam(value="newPassword") String newPassword,
+        Model model) {
+        User user = userService.findUserByLogin(login);
+        if (user == null) {
+            model.addAttribute("error", "Invalid user");
+            return ResponseEntity.notFound().build();
+        }
+        if (userService.authenticate(login, oldPassword)){ //Vérification réussie
+            // Cryptage des mots de passe
+            String security_pwd = passwordEncoder.encode(newPassword);
+            user.setPassword(security_pwd);
+            userService.updateUser(user);
+            return ResponseEntity.ok().build();
+        }
+        model.addAttribute("error", "Invalid old password");
+        return ResponseEntity.notFound().build();
+    }
     @ExceptionHandler()
     @ResponseBody
     public String error(Exception e){

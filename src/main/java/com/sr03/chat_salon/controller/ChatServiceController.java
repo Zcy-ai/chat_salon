@@ -50,11 +50,11 @@ public class ChatServiceController extends TextWebSocketHandler {
         String chatId = session.getUri().getPath().split("/")[3];
         String token = session.getUri().getPath().split("/")[4];
         this.login = login;
-        // jwt 鉴权
+        // jwt Forensics
         User user = userService.findUserByLogin(login);
         if (user != null && jwtTokenProvider.validateToken(token, user)) {
             ChatNode chatNode = new ChatNode(login, chatId, session, session.getRemoteAddress().toString());
-            log.info("收到Session", session);
+            log.info("Recevoir la session", session);
             webSocketMap.put(login, chatNode);
         } else {
           log.info("WARN: Can't establish the websocket connection!");
@@ -63,10 +63,10 @@ public class ChatServiceController extends TextWebSocketHandler {
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("收到客户端{}消息：{}", session.getId(), message.getPayload());
+        log.info("Message reçu du client {} : {}", session.getId(), message.getPayload());
         ObjectMapper objectMapper = new ObjectMapper();
         ChatMessage messageToSend = objectMapper.readValue(message.getPayload(), ChatMessage.class);
-        // 将消息存储于redis: key{chatRoomID} value{ChatMessage json格式}
+        // Stocker les messages dans redis : key{chatRoomID} value{ChatMessage json format}
         chatHistoryService.addChatHistory(messageToSend.getChatRoom(), messageToSend);
         broadcast(messageToSend);
     }
@@ -74,7 +74,7 @@ public class ChatServiceController extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         webSocketMap.remove(this.login);
-        log.info("连接关闭S:{}", session.getId());
+        log.info("Connexion fermée S:{}", session.getId());
     }
 
     public void broadcast(ChatMessage message) {

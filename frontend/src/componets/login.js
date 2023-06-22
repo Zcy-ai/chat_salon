@@ -18,18 +18,11 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 function Login() {
     const [login, setLogin] = useState('');
-    const [chatRoomList,setChatRoomList] = useState([]);
     const [password, setPassword] = useState('');
     const [error, setError] = useState();
-    // let ref = useRef();
-    // const [userList, setUserList] = useState([]);
     const navigate = useNavigate();
     const defaultTheme = createTheme();
 
-    // useEffect(() => {
-    //     ref.current = chatRoomList;
-    //     // console.log(chatRoomList);
-    // }, [chatRoomList]);
     const handleLoginChange = (event) => {
         setLogin(event.target.value);
     };
@@ -48,7 +41,6 @@ function Login() {
         axios.post('http://localhost:8080/login', formData)
             .then((response) => {
                 if (response.status === 200) {
-                //     // useState闭包问题真的吐了
                 //     response.data.chatRoomList.forEach((chat) => {
                 //         const newChat = {
                 //             id: chat.id,
@@ -159,14 +151,14 @@ function Login() {
                             </Typography>
                         )}
                         <Grid container justifyContent="center">
-                            {/*<Grid item xs>*/}
-                            {/*    <Link href="#" variant="body2">*/}
-                            {/*        Forgot password?*/}
-                            {/*    </Link>*/}
-                            {/*</Grid>*/}
+                            <Grid item xs>
+                                <Link href="/resetPwd" variant="body2">
+                                    Forgot password?
+                                </Link>
+                            </Grid>
                             <Grid item>
                                 <Link href="/register" variant="body2">
-                                    {"Don't have an account? Sign Up"}
+                                    Don't have an account? Sign Up
                                 </Link>
                             </Grid>
                         </Grid>

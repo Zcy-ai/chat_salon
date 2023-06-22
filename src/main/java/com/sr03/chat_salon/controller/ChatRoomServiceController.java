@@ -50,11 +50,11 @@ public class ChatRoomServiceController {
         } else if (!jwtTokenProvider.validateToken(token, user)) {
             logger.info("[WARN]: Token ERROR");
         }
-        // 持久化chatRoom
+        // chatRoom persistant
         ChatRoom chatRoom = new ChatRoom(chatName, user);
         chatRoomService.addChatRoom(chatRoom);
-//        chatRoom.addUser(user); // 用这个函数会出现lazy proxy bug
-        // 持久化创建者和chatRoom的contact
+//        chatRoom.addUser(user); // L'utilisation de cette fonction entraîne un bogue de proxy paresseux
+        // Créateur persistant et contact chatRoom
         Contact contact = new Contact(user, chatRoom);
         contactService.addContact(contact);
         ChatRoomResp resp = new ChatRoomResp(chatRoom.getId(),chatRoom.getName(),chatRoom.getChef(),chatRoom.getUsers());
@@ -76,16 +76,15 @@ public class ChatRoomServiceController {
             logger.info("[WARN]: Token ERROR");
         }
         ChatRoom chatroom = chatRoomService.findChatRoomByID(chatRoomID);
-        if (chatroom.getChef().getId() == user.getId()){ // 如果是群主，则删除群
+        if (chatroom.getChef().getId() == user.getId()){ // Si propriétaire du groupe, supprimer le groupe
             Map<String, WebSocketSession> webSocketMap = chatRoomInvitationController.webSocketMap;
             Set<User> users = chatroom.getUsers();
-//            System.out.println("用户");
 //            System.out.println(users);
             Iterator<User> iterator = users.iterator();
             while (iterator.hasNext()) {
                 User currUser = iterator.next();
                 String receiver = currUser.getLogin();
-                if (receiver != login) { // 除了群主
+                if (receiver != login) { // En plus du chef de groupe
                     InviteMessage message = new InviteMessage(login,receiver,chatRoomID,chatroom.getName(),"DELETEROOM");
                     ObjectMapper objectMapper = new ObjectMapper();
                     try {
@@ -99,7 +98,7 @@ public class ChatRoomServiceController {
             }
             chatRoomService.deleteChatRoomByID(chatRoomID);
         }else{
-            contactService.deleteContact(user.getId(), chatRoomID);//如果不是群主，删除他所对应的contact
+            contactService.deleteContact(user.getId(), chatRoomID);//Si vous n'êtes pas le propriétaire du groupe, supprimez le contact correspondant.
         }
         return ResponseEntity.ok().build();
     }

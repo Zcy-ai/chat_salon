@@ -20,6 +20,9 @@
           <input type="password" class="form-control" id="password" name="password" required>
         </div>
         <button type="submit" class="btn btn-primary btn-block">Login</button>
+        <div th:if="${errorMsg}" style="color: red;">
+          <p th:text="${errorMsg}"></p>
+        </div>
         <!--                <div class="text-center mt-3">-->
         <!--                    <a href="#" class="text-muted">Forgot password?</a>-->
         <!--                </div>-->

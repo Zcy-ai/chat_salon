@@ -49,7 +49,7 @@ public class ChatHistoryService {
         }
     }
 
-    private boolean isRedisConnected() {
+    public boolean isRedisConnected() {
         try {
             red.opsForValue().get("test-connection"); // 执行简单的 Redis 操作进行连接测试
             return true;

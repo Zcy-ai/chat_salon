@@ -119,7 +119,7 @@ const Register = () => {
                 const response = await axios.post("http://localhost:8080/register", userFormData);
                 console.log(response);
                 if (response.status === 200) {
-                    navigate('/login'); // TODO 更改重定向路由
+                    navigate('/login');
                 } else if (response.status === 404) {
                     setError('Registration failed');
                     navigate('/register');
@@ -180,7 +180,7 @@ const Register = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="login">Login:</label>
+                    <label htmlFor="login">E-mail:</label>
                     <input
                         type="text"
                         className="form-control"
@@ -232,8 +232,8 @@ const Register = () => {
                         required
                     >
                         <option value="">Choose...</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
                     </select>
                     {genderError && <span style={errorStyle}>{genderError}</span>}
                 </div>
