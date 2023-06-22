@@ -9,6 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ import java.util.List;
 public class AdminServiceController {
     @Autowired
     private UserService userService;
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping(value = "/login")
     public String adminLoginHandler(
@@ -116,5 +119,20 @@ public class AdminServiceController {
         User user = new User(last_name, first_name, login, admin, gender, password);
         userService.addUser(user);
         return "redirect:/admin/getAllUsers/all";
+    }
+    @PostMapping("/reset_password")
+    public String ResetPasswordHandler(
+            @RequestParam(value="login") String login,
+            @RequestParam(value="password") String password) {
+        User user = userService.findUserByLogin(login);
+        if (user == null) {
+            // TODO 报错
+            return "/index";
+        }
+        // 对密码进行加密
+        String security_pwd = passwordEncoder.encode(user.getPassword());
+        user.setPassword(security_pwd);
+        userService.modifyUser(user);
+        return "/index";
     }
 }

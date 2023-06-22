@@ -120,9 +120,9 @@ function ChatRoom() {
             myInvitation.chatRoomName,
             value
         )
-        socketServ.send(JSON.stringify(newInvitation));
         setMyInvitation(null);
         if (value === "CONFIRM"){
+            socketServ.send(JSON.stringify(newInvitation));
             const newChat = {
                 id: myInvitation.chatRoomID,
                 name: myInvitation.chatRoomName,
