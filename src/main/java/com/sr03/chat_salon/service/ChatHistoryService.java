@@ -17,74 +17,103 @@ import java.util.Set;
 public class ChatHistoryService {
     private final StringRedisTemplate red;
     private Logger log = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     public ChatHistoryService(StringRedisTemplate template) {
         this.red = template;
     }
 
+    /**
+     * Ajoute l'historique de chat dans Redis.
+     *
+     * @param chatID  ID de la salle de chat
+     * @param message Message de chat
+     * @throws JsonProcessingException Exception de traitement JSON
+     */
     public void addChatHistory(int chatID, ChatMessage message) throws JsonProcessingException {
         String chat = Integer.toString(chatID);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(message);
         try {
             if (!isRedisConnected()) {
-                // Redis 未连接，处理逻辑
+                // Redis non connecté, logique de traitement
                 handleRedisNotConnected();
                 return;
             }
-            // 群聊key为群id保证群聊小心保有一份
+            // La clé du chat de groupe est l'ID du groupe pour garantir qu'il n'y a qu'une seule copie du chat de groupe
             Long score = red.opsForZSet().zCard(chat) + 1;
             boolean res = red.opsForZSet().add(chat, jsonString, score);
             if (res) {
-                log.info("[INFO] Message " + chatID + "-" + jsonString + " is added to Redis");
+                log.info("Message " + chatID + "-" + jsonString + " is registered to Redis");
             } else {
-                log.info("[WARN] Message " + chatID + "-" + jsonString + " failed to be added to Redis");
+                log.error("Message " + chatID + "-" + jsonString + " failed to be registered to Redis");
             }
         } catch (RedisConnectionFailureException e) {
-            // Redis 连接失败异常处理
+            // Gestion de l'exception de défaillance de la connexion Redis
             handleRedisConnectionFailure();
         } catch (Exception e) {
-            // 其他异常处理
-            log.error("Failed to add chat history for chatID: " + chatID, e);
+            // Autre gestion d'exception
+            log.error("Message " + chatID + "-" + jsonString + " failed to be registered to Redis");
         }
     }
 
+    /**
+     * Vérifie si Redis est connecté.
+     *
+     * @return true si Redis est connecté, sinon false
+     */
     public boolean isRedisConnected() {
         try {
-            red.opsForValue().get("test-connection"); // 执行简单的 Redis 操作进行连接测试
+            red.opsForValue().get("test-connection"); // Exécute une opération Redis simple pour tester la connexion
             return true;
         } catch (RedisConnectionFailureException e) {
             return false;
         }
     }
 
+    /**
+     * Gère la logique lorsque Redis n'est pas connecté.
+     */
     private void handleRedisNotConnected() {
-        // 处理 Redis 未连接的逻辑
-        System.out.println("Redis is not connected");
+        // Gérer la logique lorsque Redis n'est pas connecté
+        log.warn("Redis is not connected");
     }
 
+    /**
+     * Gère la logique en cas d'échec de la connexion à Redis.
+     */
     private void handleRedisConnectionFailure() {
-        // 处理 Redis 连接失败的逻辑
-        System.out.println("Failed to connect to Redis");
+        // Gérer la logique en cas d'échec de la connexion à Redis
+        log.warn("Fail to connect to Redis");
     }
 
+    /**
+     * Obtient l'historique de chat par ID de chat.
+     *
+     * @param chatID ID de la salle de chat
+     * @return Ensemble de l'historique de chat
+     */
     public Set<String> getChatHistoryByChatID(int chatID) {
         String chat = Integer.toString(chatID);
         try {
             Long score = red.opsForZSet().zCard(chat);
             long low = 0;
-            // 获取消息集合，只显示最近50条消息
+            // Obtenir l'ensemble de messages, afficher uniquement les 50 derniers messages
             if (score > 50) {
                 low = score - 50;
             }
             return red.opsForZSet().range(chat, low, score);
         } catch (Exception e) {
-            log.error("[ERROR] Failed to get chat history for chatID: " + chatID, e);
-            return Collections.emptySet(); // 返回一个空的 Set 表示历史记录为空
+            log.error("Fail to get chat history of chatID : " + chatID, e);
+            return Collections.emptySet(); // Retourne un ensemble vide pour indiquer que l'historique est vide
         }
     }
 
-
+    /**
+     * Supprime l'historique de chat d'une salle de chat.
+     *
+     * @param chatID ID de la salle de chat
+     */
     public void deleteChatHistory(int chatID) {
         String chat = Integer.toString(chatID);
         red.delete(chat);

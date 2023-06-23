@@ -2,6 +2,8 @@ package com.sr03.chat_salon.controller;
 
 import com.sr03.chat_salon.model.User;
 import com.sr03.chat_salon.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,13 +14,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin")
 public class AdminServiceController {
     @Autowired
     private UserService userService;
+    private Logger log = LoggerFactory.getLogger(this.getClass());
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping(value = "/login")
@@ -30,17 +32,18 @@ public class AdminServiceController {
         if (user == null) {
             System.out.println("User Login Not Found :(");
             model.addAttribute("errorMsg", "User Login Not Found :(");
+            log.error("User Login Not Found :(");
             return "index";
         }
         if (userService.authenticate(login, pwd)) {
             if (user.getAdmin()) {
                 return "redirect:/admin/getAllUsers/all";
             }
-            System.out.println("Permission denied :(");
+            log.warn("Permission denied :(");
             model.addAttribute("errorMsg", "Permission denied :(");
             return "index";
         }
-        System.out.println("Password error :(");
+        log.error("Password error :(");
         model.addAttribute("errorMsg", "Password error :(");
         return "index";
     }
@@ -92,16 +95,19 @@ public class AdminServiceController {
             user.setPassword(security_pwd);
         }
         userService.modifyUser(user);
+        log.info("User has been modified");
         return "redirect:/admin/getAllUsers/all";
     }
     @PostMapping(value = "/deleteUser/{id}")
     public String deleteUserHandler(@PathVariable("id") int id) {
         userService.deleteUserById(id);
+        log.info("User "+id+" has been deleted");
         return "redirect:/admin/getAllUsers/all";
     }
     @PostMapping(value = "/enableDisableUser/{id}")
     public String enableDisableUserHandler(@PathVariable("id") int id) {
         userService.enableDisableById(id);
+        log.info("Status of User "+id+" has been changed");
         return "redirect:/admin/getAllUsers/all";
     }
     @RequestMapping(value = "/createUser")
@@ -119,15 +125,15 @@ public class AdminServiceController {
             Model model) {
         // Déterminer s'il existe des utilisateurs en double enregistrés avec un login findUserByLogin
         if (userService.findUserByLogin(login) != null) {
-            //TODO 换成logback记录
             model.addAttribute("error", "Login already registered!");
-            System.out.println("Login already registered :(");
+            log.error("Login already registered :(");
             return "registerAdm";
         }
 
         // Créer un utilisateur
         User user = new User(last_name, first_name, login, admin, gender, password);
         userService.addUser(user);
+        log.info(user+" has been created");
         return "redirect:/admin/getAllUsers/all";
     }
 }

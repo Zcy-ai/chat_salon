@@ -36,7 +36,7 @@ public class ChatRoomServiceController {
     private UserService userService;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
-    private static final Logger logger = LoggerFactory.getLogger(ChatRoomServiceController.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     @PostMapping(value = "/create_chatroom/{login}/{chatName}/{token}")
     @ResponseBody
     public ResponseEntity<ChatRoomResp> createChatRoomHandler(
@@ -45,19 +45,19 @@ public class ChatRoomServiceController {
             @PathVariable("token") String token) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
-            logger.info("[WARN]: User "+login+" Not Found!");
+            logger.error("User "+login+" Not Found!");
             return ResponseEntity.notFound().build();
         } else if (!jwtTokenProvider.validateToken(token, user)) {
-            logger.info("[WARN]: Token ERROR");
+            logger.error("Token ERROR");
         }
         // chatRoom persistant
         ChatRoom chatRoom = new ChatRoom(chatName, user);
         chatRoomService.addChatRoom(chatRoom);
-//        chatRoom.addUser(user); // L'utilisation de cette fonction entraîne un bogue de proxy paresseux
         // Créateur persistant et contact chatRoom
         Contact contact = new Contact(user, chatRoom);
         contactService.addContact(contact);
         ChatRoomResp resp = new ChatRoomResp(chatRoom.getId(),chatRoom.getName(),chatRoom.getChef(),chatRoom.getUsers());
+        logger.info(user.getLastName()+" "+user.getFirstName()+" has created ChatRoom "+chatName);
         return ResponseEntity.ok(resp);
     }
 
@@ -70,16 +70,15 @@ public class ChatRoomServiceController {
             @PathVariable("token") String token) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
-            logger.info("[WARN]: User "+login+" Not Found!");
+            logger.error("User "+login+" Not Found!");
             return ResponseEntity.notFound().build();
         } else if (!jwtTokenProvider.validateToken(token, user)) {
-            logger.info("[WARN]: Token ERROR");
+            logger.error("Token ERROR");
         }
         ChatRoom chatroom = chatRoomService.findChatRoomByID(chatRoomID);
         if (chatroom.getChef().getId() == user.getId()){ // Si propriétaire du groupe, supprimer le groupe
             Map<String, WebSocketSession> webSocketMap = chatRoomInvitationController.webSocketMap;
             Set<User> users = chatroom.getUsers();
-//            System.out.println(users);
             Iterator<User> iterator = users.iterator();
             while (iterator.hasNext()) {
                 User currUser = iterator.next();
@@ -97,8 +96,10 @@ public class ChatRoomServiceController {
                 }
             }
             chatRoomService.deleteChatRoomByID(chatRoomID);
+            logger.info(user.getLastName()+" "+user.getFirstName()+" has delete ChatRoom with id: "+chatRoomID);
         }else{
             contactService.deleteContact(user.getId(), chatRoomID);//Si vous n'êtes pas le propriétaire du groupe, supprimez le contact correspondant.
+            logger.info(user.getLastName()+" "+user.getFirstName()+" has left ChatRoom with id: "+chatRoomID);
         }
         return ResponseEntity.ok().build();
     }

@@ -1,11 +1,11 @@
 package com.sr03.chat_salon.model;
 
 public class InviteMessage {
-    private String inviter;
-    private String receiver;
-    private Integer chatRoomID;
-    private String chatRoomName;
-    private String messageType;
+    private String inviter; // L'expéditeur de l'invitation
+    private String receiver; // Le destinataire de l'invitation
+    private Integer chatRoomID; // L'identifiant de la salle de chat
+    private String chatRoomName; // Le nom de la salle de chat
+    private String messageType; // Le type de message d'invitation
 
     public InviteMessage() {
     }
@@ -45,9 +45,11 @@ public class InviteMessage {
     public String getMessageType() {
         return messageType;
     }
+
     public void setMessageType(String messageType) {
         this.messageType = messageType;
     }
+
     public String getChatRoomName() {
         return chatRoomName;
     }
@@ -66,5 +68,4 @@ public class InviteMessage {
                 ", messageType='" + messageType + '\'' +
                 '}';
     }
-
 }

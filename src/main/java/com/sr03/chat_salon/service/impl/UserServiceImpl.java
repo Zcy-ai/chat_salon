@@ -20,7 +20,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User registerUser(User user) {
-        // 对用户密码进行加密
 //        String encryptedPassword = encrypt(user.getPassword());
 //        user.setPassword(encryptedPassword);
 //
@@ -30,7 +29,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(String login, String password) {
-//        // 对用户密码进行加密
 //        String encryptedPassword = encrypt(password);
 //
 //        return userDao.findByLoginAndPassword(login, encryptedPassword);
@@ -77,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void addUser(User user) {
-        // 对密码进行加密
+        // Chiffrement des mots de passe
         String security_pwd = passwordEncoder.encode(user.getPassword());
         user.setPassword(security_pwd);
         userDao.addUser(user);

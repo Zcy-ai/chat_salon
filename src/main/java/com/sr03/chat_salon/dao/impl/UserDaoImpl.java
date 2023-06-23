@@ -19,14 +19,14 @@ import java.util.List;
 public class UserDaoImpl implements UserDao {
     @Autowired
     private SessionFactory sessionFactory;
-
+    // Ajoute un utilisateur à la base de données
     @Override
     @Transactional
     public void addUser(User user) {
         Session session = this.sessionFactory.getCurrentSession();
         session.save(user);
     }
-
+    // Supprime un utilisateur de la base de données en utilisant son identifiant
     @Override
     @Transactional
     public void deleteUserById(int id) {
@@ -34,7 +34,7 @@ public class UserDaoImpl implements UserDao {
         User user = session.get(User.class, id);
         session.delete(user);
     }
-
+    // Supprime un utilisateur de la base de données en utilisant login
     @Override
     @Transactional
     public void deleteUserByLogin(String login) {
@@ -43,6 +43,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("login", login);
         query.executeUpdate();
     }
+    // Active ou désactive un utilisateur en utilisant son identifiant
     @Override
     @Transactional
     public void enableDisableById(int id) {
@@ -51,6 +52,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("id", id);
         query.executeUpdate();
     }
+    // Modifie les informations d'un utilisateur dans la base de données
     @Override
     @Transactional
     public void modifyUser(User user) {
@@ -74,7 +76,7 @@ public class UserDaoImpl implements UserDao {
         session.update(user);
     }
 
-
+    // Récupère tous les utilisateurs de la base de données
     @Override
     @Transactional(readOnly = true)
     public List<User> findAllUser() {
@@ -82,7 +84,7 @@ public class UserDaoImpl implements UserDao {
         Query<User> query = session.createQuery("from User");
         return query.list();
     }
-
+    // Récupère les utilisateurs associés à une salle de discussion spécifique
     @Override
     @Transactional(readOnly = true)
     public List<User> findUserByChatRoom(int chatRoomID) {
@@ -92,7 +94,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("chatRoomID", chatRoomID);
         return query.getResultList();
     }
-
+    // Récupère un utilisateur par login
     @Override
     @Transactional(readOnly = true)
     public User findUserByLogin(String login) {
@@ -101,6 +103,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("user_login", login);
         return query.uniqueResult();
     }
+    // Récupère un utilisateur par id
     @Override
     @Transactional(readOnly = true)
     public User findUserById(int id) {
@@ -109,6 +112,7 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("user_id", id);
         return query.uniqueResult();
     }
+    // Recherche des utilisateurs dans la base de données en utilisant une requête de recherche, une pagination et un tri spécifiques
     @Override
     @Transactional(readOnly = true)
     public Page<User> searchUsers(String searchQuery, Pageable pageable, String sortBy) {
@@ -122,12 +126,13 @@ public class UserDaoImpl implements UserDao {
         long total = getTotalUserCount(session, hql, searchQuery); // 获取总记录数
         return new PageImpl<>(userList, pageable, total);
     }
-
+    // Obtient le nombre total d'utilisateurs correspondant à une requête de recherche spécifique
     private long getTotalUserCount(Session session, String hql, String searchQuery) {
         Query<Long> countQuery = session.createQuery("SELECT COUNT(*) " + hql, Long.class);
         countQuery.setParameter("searchQuery", "%" + searchQuery + "%");
         return countQuery.getSingleResult();
     }
+    // Récupère tous les utilisateurs avec une pagination et un tri spécifiques
     @Override
     @Transactional(readOnly = true)
     public Page<User> findAll(Pageable pageable, String sortBy) {
@@ -140,6 +145,7 @@ public class UserDaoImpl implements UserDao {
         long total = getTotalUserCount(session, hql);
         return new PageImpl<>(userList, pageable, total);
     }
+    // Récupère tous les utilisateurs désactivés avec une pagination et un tri spécifiques
     @Override
     @Transactional(readOnly = true)
     public Page<User> findDisabledUsers(Pageable pageable, String sortBy) {
@@ -151,7 +157,8 @@ public class UserDaoImpl implements UserDao {
         List<User> userList = query.getResultList();
         long total = getTotalUserCount(session, hql);
         return new PageImpl<>(userList, pageable, total);
-    };
+    }
+    // Obtient le nombre total d'utilisateurs désactivés
     private long getTotalUserCount(Session session, String hql) {
         Query<Long> countQuery = session.createQuery("SELECT COUNT(*) " + hql, Long.class);
         return countQuery.getSingleResult();

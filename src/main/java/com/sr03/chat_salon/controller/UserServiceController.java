@@ -31,7 +31,7 @@ public class UserServiceController {
     private ChatRoomService chatRoomService;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
-    private static final Logger logger = LoggerFactory.getLogger(UserServiceController.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     @RequestMapping("register")
     public String ShowRegisterForm() {
@@ -62,7 +62,6 @@ public class UserServiceController {
     }
 
     @PostMapping (value = "/login")
-//    @CrossOrigin(origins = "http://localhost:3000")
     @ResponseBody
     public ResponseEntity<UserLoginResp> LoginHandler(
             @RequestParam("login") String login,
@@ -71,13 +70,13 @@ public class UserServiceController {
         User user = userService.findUserByLogin(login);
         if (user == null) {
             String message = "User " + login + " not found!";
-            logger.info(message);
+            logger.warn(message);
             UserLoginResp errorResponse = new UserLoginResp(message);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
         if (!user.isEnabled()) {
             String message = "User " + login + " is not enabled!";
-            logger.info(message);
+            logger.warn(message);
             UserLoginResp errorResponse = new UserLoginResp(message);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
@@ -88,7 +87,7 @@ public class UserServiceController {
             user.setEnabled(false);
             userService.updateUser(user);
             String message = "User " + login + " has exceeded maximum login attempts. User is disabled.";
-            logger.info(message);
+            logger.warn(message);
             UserLoginResp errorResponse = new UserLoginResp(message);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
@@ -101,7 +100,6 @@ public class UserServiceController {
             request.getSession().setAttribute("user", user.getLogin());
             String token = jwtTokenProvider.generateToken(login);
             logger.info("User "+login+" connected");
-            // TODO Stocker les utilisateurs en ligne dans redis
             List<User> user_list = null;
             if (user.getAdmin()) {
                 user_list = userService.getAllUsers();
@@ -114,7 +112,7 @@ public class UserServiceController {
             user.setLoginAttempts(loginAttempts + 1);
             userService.updateUser(user);
             String message = "Invalid password for user " + login + ". Login attempts: " + (loginAttempts + 1);
-            logger.info(message);
+            logger.warn(message);
             UserLoginResp errorResponse = new UserLoginResp(message);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
@@ -128,11 +126,11 @@ public class UserServiceController {
     public ResponseEntity ResetPwdHandler(
         @RequestParam(value="login") String login,
         @RequestParam(value="oldPassword") String oldPassword,
-        @RequestParam(value="newPassword") String newPassword,
-        Model model) {
+        @RequestParam(value="newPassword") String newPassword
+        ) {
         User user = userService.findUserByLogin(login);
         if (user == null) {
-            model.addAttribute("error", "Invalid user");
+            logger.error("Invalid user "+login);
             return ResponseEntity.notFound().build();
         }
         if (userService.authenticate(login, oldPassword)){ //Vérification réussie
@@ -140,9 +138,10 @@ public class UserServiceController {
             String security_pwd = passwordEncoder.encode(newPassword);
             user.setPassword(security_pwd);
             userService.updateUser(user);
+            logger.error("Invalid user "+login);
             return ResponseEntity.ok().build();
         }
-        model.addAttribute("error", "Invalid old password");
+        logger.error("Invalid old password");
         return ResponseEntity.notFound().build();
     }
     @ExceptionHandler()

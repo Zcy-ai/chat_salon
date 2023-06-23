@@ -221,7 +221,6 @@ public class User implements UserDetails {
                 ", admin=" + admin +
                 ", enabled=" + enabled +
                 ", id=" + id +
-                ", chatRooms=" + chatRooms +
                 '}';
     }
 

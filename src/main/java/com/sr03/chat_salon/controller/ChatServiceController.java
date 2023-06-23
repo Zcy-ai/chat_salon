@@ -11,6 +11,7 @@ import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,20 +51,27 @@ public class ChatServiceController extends TextWebSocketHandler {
         String chatId = session.getUri().getPath().split("/")[3];
         String token = session.getUri().getPath().split("/")[4];
         this.login = login;
-        // jwt Forensics
+        // jwt authentication
         User user = userService.findUserByLogin(login);
         if (user != null && jwtTokenProvider.validateToken(token, user)) {
             ChatNode chatNode = new ChatNode(login, chatId, session, session.getRemoteAddress().toString());
             log.info("Recevoir la session", session);
             webSocketMap.put(login, chatNode);
+        } else if (user == null) { // user login n'existe pas
+            log.error("User "+login+" Not Found!");
+            session.close();
+        } else if (!jwtTokenProvider.validateToken(token, user)) { // token est invalide
+            log.error("Token ERROR");
+            session.close();
         } else {
-          log.info("WARN: Can't establish the websocket connection!");
+            log.error("can't establish websocket connexion");
+            session.close();
         }
     }
 
     @Override
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("Message reçu du client {} : {}", session.getId(), message.getPayload());
+        log.info("Message received by client {} : {}", session.getId(), message.getPayload());
         ObjectMapper objectMapper = new ObjectMapper();
         ChatMessage messageToSend = objectMapper.readValue(message.getPayload(), ChatMessage.class);
         // Stocker les messages dans redis : key{chatRoomID} value{ChatMessage json format}
@@ -83,10 +91,12 @@ public class ChatServiceController extends TextWebSocketHandler {
         for (User user : userList) {
             if (webSocketMap.containsKey(user.getLogin())) {
                 try {
+                    // envoyer le msg vers l'utilisateur en ligne
                     if (webSocketMap.get(user.getLogin()).getRoomId().equals(Integer.toString(message.getChatRoom()))){
                         webSocketMap.get(user.getLogin()).sendMessage(message);
                     }
                 } catch (Exception e) {
+                    log.error("Failed to send the message");
                 }
             }
         }

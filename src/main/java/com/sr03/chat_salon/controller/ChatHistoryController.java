@@ -20,14 +20,13 @@ public class ChatHistoryController {
     private ChatHistoryService chatHistoryService;
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
-    private static final Logger logger = LoggerFactory.getLogger(ChatHistoryService.class);
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping(value = "/chat_history/{chatRoomID}/{token}")
     @ResponseBody
     public ResponseEntity<Set<String>> chatHistoryHandler(
         @PathVariable(value="chatRoomID") int chatRoomID,
         @PathVariable(value="token") String token) {
-        System.out.println(chatRoomID);
         // TODO jwt认证
 //        String login = jwtTokenProvider.getUserLoginFromJWT(token);
         if (!chatHistoryService.isRedisConnected()) {
@@ -35,11 +34,11 @@ public class ChatHistoryController {
             return ResponseEntity.notFound().build();
         }
         Set<String> chatHistory = chatHistoryService.getChatHistoryByChatID(chatRoomID);
-        System.out.println(chatHistory);
         if (chatHistory != null) {
+            logger.info("Get chatHistory of chatRoom "+chatRoomID);
             return ResponseEntity.ok(chatHistory);
         } else {
-            System.out.println("获取历史消息失败");
+            logger.warn("Failed to get the chatHistory of chatRoom "+chatRoomID);
             return ResponseEntity.notFound().build();
         }
     }

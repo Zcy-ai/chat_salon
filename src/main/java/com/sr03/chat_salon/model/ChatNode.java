@@ -9,23 +9,19 @@ import javax.websocket.Session;
 import java.io.IOException;
 
 public class ChatNode {
-    private String login; // 客户端login
-    private String roomId; // room id
-    private WebSocketSession session; // 客户端session
-    private String addr; // 客户端连接地址
-//    private String loginTime; // 登陆时间
-    // DataQueue 消息队列（不确定，再看看）
+    private String login;                 // Login du client
+    private String roomId;                // ID de la salle de chat
+    private WebSocketSession session;     // Session du client WebSocket
+    private String addr;                  // Adresse de connexion du client
 
     public ChatNode(String login, String roomId, WebSocketSession session, String addr) {
         this.login = login;
         this.roomId = roomId;
         this.session = session;
         this.addr = addr;
-//        this.loginTime = loginTime;
     }
 
     public void sendMessage(ChatMessage message) throws IOException {
-        System.out.println("准备发送消息到前端"+message);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(message);
         TextMessage textMessage = new TextMessage(jsonString);
@@ -39,8 +35,15 @@ public class ChatNode {
     public void setLogin(String login) {
         this.login = login;
     }
-    public String getRoomId() {return roomId;}
-    public void setRoomId(String roomId) {this.roomId = roomId;}
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
     public WebSocketSession getSession() {
         return session;
     }

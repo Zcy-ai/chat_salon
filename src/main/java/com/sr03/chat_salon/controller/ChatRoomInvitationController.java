@@ -42,7 +42,6 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         String login = session.getUri().getPath().split("/")[2];
         String token = session.getUri().getPath().split("/")[3];
-        // jwt forensics
         User user = userService.findUserByLogin(login);
         if (user != null && jwtTokenProvider.validateToken(token, user)) {
             log.info("Recevoir la session", session);
@@ -54,13 +53,13 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     public void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception{
         ObjectMapper objectMapper = new ObjectMapper();
         InviteMessage inviteMessage = objectMapper.readValue(message.getPayload(), InviteMessage.class);
-        System.out.println(inviteMessage);
+        // si l'utilisateur accepte l'invitation d'entrer à chatroom
         if (inviteMessage.getMessageType().equals("CONFIRM")) {
             User user = userService.findUserByLogin(inviteMessage.getInviter());
             ChatRoom chatRoom = chatRoomService.findChatRoomByID(inviteMessage.getChatRoomID());
             Contact contact = new Contact(user, chatRoom);
             contactService.addContact(contact);
-//            log.info("Add User"+user+" to the chatRoom "+chatRoom);
+            log.info("Add User"+user+" to the chatRoom "+chatRoom);
             sendMessage(inviteMessage);
             return;
         }
@@ -68,11 +67,11 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
         if (contact != null) { // Les invités sont déjà dans le groupe
             String err = "Inviter is already in the chatRoom";
             log.info(err);
-            inviteMessage.setReceiver(inviteMessage.getInviter()); //把错误传给自己
+            inviteMessage.setReceiver(inviteMessage.getInviter()); //Envoyer l'info erreur vers expétideur lui-meme
             inviteMessage.setMessageType(err);
         }else if(userService.findUserByLogin(inviteMessage.getReceiver()) == null) {
             String err = "Inviter doesn't exist";
-            log.info(err);
+            log.error(err);
             inviteMessage.setReceiver(inviteMessage.getInviter());
             inviteMessage.setMessageType(err);
         }
@@ -85,10 +84,16 @@ public class ChatRoomInvitationController extends TextWebSocketHandler {
     }
 
     public void sendMessage(InviteMessage message) throws IOException {
-        log.info("Invite message: "+message);
+        log.info("Envoyer le message : "+message);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonString = objectMapper.writeValueAsString(message);
         TextMessage textMessage = new TextMessage(jsonString);
-        webSocketMap.get(message.getReceiver()).sendMessage(textMessage);
+        // vérifier si le récepteur est en ligne ou pas
+        String receiver = message.getReceiver();
+        if (webSocketMap.containsKey(receiver)) {
+            webSocketMap.get(receiver).sendMessage(textMessage);
+        } else {
+            log.info("Receiver "+receiver + " is currently  offline");
+        }
     }
 }

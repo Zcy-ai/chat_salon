@@ -10,24 +10,25 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class GlobalCorsConfig {
     @Bean
     public CorsFilter corsFilter() {
-        //添加 CORS配置信息
+        // Ajouter les informations de configuration CORS
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        //是否发送 Cookie
+        // Autoriser l'envoi des cookies
         corsConfiguration.setAllowCredentials(true);
-        //放行哪些原始域
+        // Autoriser toutes les origines
         corsConfiguration.addAllowedOrigin("*");
-        //放行哪些原始请求头部信息
+        // Autoriser tous les en-têtes de requête d'origine
         corsConfiguration.addAllowedHeader("*");
-        //放行哪些请求方式
+        // Autoriser toutes les méthodes de requête
         corsConfiguration.addAllowedMethod("GET");
         corsConfiguration.addAllowedMethod("POST");
         corsConfiguration.addAllowedMethod("PUT");
         corsConfiguration.addAllowedMethod("DELETE");
         corsConfiguration.addAllowedMethod("OPTIONS");
-        // 添加映射路径
+        // Ajouter la source de configuration basée sur les URL
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // 返回新的CorsFilter
+        // Enregistrer la configuration CORS pour tous les chemins d'accès
         source.registerCorsConfiguration("/**", corsConfiguration);
+        // Retourner un nouveau CorsFilter
         return new CorsFilter(source);
     }
 }

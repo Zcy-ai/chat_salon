@@ -1,14 +1,12 @@
 package com.sr03.chat_salon.model;
 
-
 public class ChatMessage {
-    //    private MessageType type;
-    private String sender;
-    private String firstName;
-    private String lastName;
-    private Integer chatRoom;
-    private String content;
-    private String timestamp;
+    private String sender;       // Expéditeur du message
+    private String firstName;    // Prénom de l'expéditeur
+    private String lastName;     // Nom de famille de l'expéditeur
+    private Integer chatRoom;    // ID de la salle de chat
+    private String content;      // Contenu du message
+    private String timestamp;    // Horodatage du message
 
     public ChatMessage(String sender, String firstName, String lastName, Integer chatRoom, String content, String timestamp) {
         this.sender = sender;
@@ -18,22 +16,7 @@ public class ChatMessage {
         this.content = content;
         this.timestamp = timestamp;
     }
-//    public enum MessageType {
-//        CHAT,
-//        IMAGE,
-//        VOICE,
-//    }
 
-//    public MessageType getType() {
-//        return type;
-//    }
-
-//    public void setType(MessageType type) {
-//        this.type = type;
-//    }
-//    public Integer getId() {return id;}
-//
-//    public void setId(Integer id) {this.id = id;}
     public String getFirstName() {
         return firstName;
     }
@@ -49,6 +32,7 @@ public class ChatMessage {
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
     public String getContent() {
         return content;
     }
@@ -65,12 +49,8 @@ public class ChatMessage {
         this.sender = sender;
     }
 
-    public int getChatRoom() {
+    public Integer getChatRoom() {
         return chatRoom;
-    }
-
-    public void setChatRoom(int chatRoom) {
-        this.chatRoom = chatRoom;
     }
 
     public void setChatRoom(Integer chatRoom) {
@@ -85,18 +65,20 @@ public class ChatMessage {
         this.timestamp = timestamp;
     }
 
-    //default constructor
+    // Constructeur par défaut
     public ChatMessage() {
         super();
     }
 
-
     @Override
     public String toString() {
         return "ChatMessage{" +
-                "chatRoomID=" + chatRoom + '\'' +
                 "sender='" + sender + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", chatRoom=" + chatRoom +
                 ", content='" + content + '\'' +
+                ", timestamp='" + timestamp + '\'' +
                 '}';
     }
 }

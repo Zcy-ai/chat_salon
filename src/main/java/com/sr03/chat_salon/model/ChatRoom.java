@@ -59,5 +59,14 @@ public class ChatRoom {
         users.remove(user);
         user.getChatRooms().remove(this);
     }
+
+    @Override
+    public String toString() {
+        return "ChatRoom{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", chef=" + chef +
+                '}';
+    }
 }
 
