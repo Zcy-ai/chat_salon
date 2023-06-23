@@ -1,7 +1,9 @@
 package com.sr03.chat_salon.controller;
 
 
+import com.sr03.chat_salon.model.User;
 import com.sr03.chat_salon.service.ChatHistoryService;
+import com.sr03.chat_salon.service.UserService;
 import com.sr03.chat_salon.utils.JwtTokenProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +21,25 @@ public class ChatHistoryController {
     @Autowired
     private ChatHistoryService chatHistoryService;
     @Autowired
+    private UserService userService;
+    @Autowired
     private JwtTokenProvider jwtTokenProvider;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @GetMapping(value = "/chat_history/{chatRoomID}/{token}")
+    @GetMapping(value = "/chat_history/{login}/{chatRoomID}/{token}")
     @ResponseBody
     public ResponseEntity<Set<String>> chatHistoryHandler(
+        @PathVariable(value="login") String login,
         @PathVariable(value="chatRoomID") int chatRoomID,
         @PathVariable(value="token") String token) {
-        // TODO jwt认证
-//        String login = jwtTokenProvider.getUserLoginFromJWT(token);
+        // jwt authentication
+        User user = userService.findUserByLogin(login);
+        if (user == null) {
+            logger.error("User "+login+" Not Found!");
+            return ResponseEntity.notFound().build();
+        } else if (!jwtTokenProvider.validateToken(token, user)) {
+            logger.error("Token ERROR");
+        }
         if (!chatHistoryService.isRedisConnected()) {
             System.out.println("Not connected to Redis");
             return ResponseEntity.notFound().build();

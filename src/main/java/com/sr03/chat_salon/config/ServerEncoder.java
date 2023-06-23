@@ -23,7 +23,6 @@ public class ServerEncoder implements Encoder.Text<ChatMessage> {
         try {
             return JSON.toJSON(message).toString();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
             return "";
         }

@@ -140,7 +140,7 @@ function ChatRoom() {
             setMessageList([]);
             return;
         }
-        axios.get(`http://localhost:8080/chat_history/${roomId}/${token}`)
+        axios.get(`http://localhost:8080/chat_history/${currentLogin}/${roomId}/${token}`)
             .then((response) => {
                 // const messageHistory = response.data;
                 const messageHistory = response.data.map(JSON.parse);
